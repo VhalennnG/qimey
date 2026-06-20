@@ -1,14 +1,15 @@
-# Spesifikasi Komponen React: Fyvian ("Slip")
+# Spesifikasi Komponen React: Qimey ("Slip")
 
-Dokumen ini mendefinisikan arsitektur komponen, tipe data, dan aliran data (*state flow*) untuk aplikasi Fyvian.
+Dokumen ini mendefinisikan arsitektur komponen, tipe data, dan aliran data (_state flow_) untuk aplikasi Qimey.
 
 ---
 
 ## 1. Struktur Folder Proyek
+
 Proyek akan menggunakan Next.js App Router standar dengan struktur modular berikut:
 
 ```
-fyvian/
+qimey/
 ├── app/
 │   ├── layout.tsx         # Layout utama, konfigurasi font, dan metadata SEO
 │   ├── page.tsx           # Halaman utama (koordinator state dan localStorage)
@@ -34,6 +35,7 @@ fyvian/
 ---
 
 ## 2. Model Data & Tipe (TypeScript)
+
 Tipe data yang didefinisikan dalam `types/finance.ts` mengadopsi model data dari PRD:
 
 ```typescript
@@ -93,8 +95,8 @@ export interface FinancialState {
 
 export interface MonthlyProjection {
   bulanIndex: number; // 0-11
-  bulanNama: string;  // Contoh: "Jun", "Jul"
-  tahun: number;      // Contoh: 2026
+  bulanNama: string; // Contoh: "Jun", "Jul"
+  tahun: number; // Contoh: 2026
   pendapatanKotor: number;
   pajakPotongan: number;
   pendapatanBersih: number;
@@ -114,10 +116,12 @@ export interface MonthlyProjection {
 ## 3. Komponen Halaman & Layout
 
 ### `RootLayout` (`app/layout.tsx`)
+
 - **Tanggung Jawab:** Menginisialisasi HTML, menyetel font (Inter dari Google Fonts), dan mendefinisikan metadata SEO dasar.
 - **Tipe:** Server Component.
 
 ### `MainPage` (`app/page.tsx`)
+
 - **Tanggung Jawab:** Menyimpan state utama `FinancialState`, sinkronisasi otomatis dengan `localStorage`, memicu validasi, serta merender `FormContainer` dan `Dashboard` secara vertikal di bawahnya jika kalkulasi sudah dipicu.
 - **Tipe:** Client Component (`'use client'`).
 - **State Utama:**
@@ -132,6 +136,7 @@ export interface MonthlyProjection {
 ## 4. Komponen Input Formulir (Form)
 
 ### `FormContainer` (`components/FormContainer.tsx`)
+
 - **Tanggung Jawab:** Membungkus seluruh section input form dari langkah 1-5 dan tombol submit.
 - **Props:**
   ```typescript
@@ -144,27 +149,34 @@ export interface MonthlyProjection {
   ```
 
 ### `IncomeSection` (`components/IncomeSection.tsx`)
+
 - **Tanggung Jawab:** Mengelola masukan pendapatan. Setiap item pendapatan dirender dalam kartu terpisah dengan opsi tombol "Potongan Pajak" untuk menambah baris potongan pajak spesifik pada income bersangkutan.
 - **State Internal:** `expandedTaxIncomeId` (string | null) untuk mencatat kartu income mana yang sedang dikonfigurasi pajaknya.
 
 ### `SavingsSection` (`components/SavingsSection.tsx`)
+
 - **Tanggung Jawab:** Memasukkan saldo tabungan saat ini dan beralih antara menyertakan atau mengecualikan saldo ini dalam proyeksi.
 
 ### `DebtSection` (`components/DebtSection.tsx`)
+
 - **Tanggung Jawab:** Menampung daftar cicilan dan utang dengan masa tenor bulan yang wajib diisi.
 
 ### `RoutineSection` (`components/RoutineSection.tsx`)
+
 - **Tanggung Jawab:** Menampung daftar pengeluaran rutin bulanan/mingguan/harian tanpa masa berakhir.
 
 ### `OneTimeSection` (`components/OneTimeSection.tsx`)
+
 - **Tanggung Jawab:** Menampung daftar pengeluaran satu kali bayar pada bulan spesifik (dropdown bulan berjalan s/d Desember).
 
 ---
 
 ## 5. Komponen Dashboard Hasil (Dashboard)
-*Komponen ini hanya dirender di bawah formulir input setelah tombol "Hitung Proyeksi" ditekan.*
+
+_Komponen ini hanya dirender di bawah formulir input setelah tombol "Hitung Proyeksi" ditekan._
 
 ### `Dashboard` (`components/Dashboard.tsx`)
+
 - **Tanggung Jawab:** Penampung utama dashboard hasil proyeksi keuangan. Menerima data proyeksi hasil komputasi dan menyusun komponen grafik, ringkasan metrik, komposisi bulanan, dan list info pelunasan di bagian bawah.
 - **Props:**
   ```typescript
@@ -177,9 +189,11 @@ export interface MonthlyProjection {
   ```
 
 ### `DashHero` (`components/DashHero.tsx`)
+
 - **Tanggung Jawab:** Menampilkan saldo kumulatif proyeksi akhir Desember dengan angka besar yang menonjol dan catatan asumsi perhitungan bulan berjalan.
 
 ### `MetricsSummary` (`components/MetricsSummary.tsx`)
+
 - **Tanggung Jawab:** Menampilkan metrik ringkasan dalam grid 4 kolom:
   1. Total Pendapatan Bersih (Juni-Desember).
   2. Total Pajak & Potongan.
@@ -187,15 +201,18 @@ export interface MonthlyProjection {
   4. Rasio Cicilan terhadap Pendapatan Bersih (bulan berjalan).
 
 ### `ProjectionChart` (`components/ProjectionChart.tsx`)
+
 - **Tanggung Jawab:** Merender grafik batang horizontal/vertikal interaktif yang menggambarkan perubahan saldo dari bulan berjalan s/d Desember menggunakan Recharts.
 - **Kunci Visual:** Warna hijau untuk saldo positif, merah untuk defisit saldo (< 0). Menggunakan `ssr: false` via `next/dynamic` untuk mencegah kesalahan hidrasi server.
 
 ### `CompositionBreakdown` (`components/CompositionBreakdown.tsx`)
+
 - **Tanggung Jawab:** Menampilkan komposisi pengeluaran dan sisa uang untuk bulan berjalan dalam bentuk progress bars/stacked progress bar harmonis (Pajak vs Cicilan vs Rutin vs Sisa).
 
 ### `StatusDetails` (`components/StatusDetails.tsx`)
+
 - **Tanggung Jawab:** Menampilkan daftar pelunasan cicilan ("lunas [Bulan]") dan pemberitahuan berakhirnya income tertentu.
-- **Penting:** Sesuai permintaan pengguna, badge lunas dan detail status cicilan/income ini *hanya* ditampilkan pada bagian hasil kalkulasi ini, bukan di form input utama.
+- **Penting:** Sesuai permintaan pengguna, badge lunas dan detail status cicilan/income ini _hanya_ ditampilkan pada bagian hasil kalkulasi ini, bukan di form input utama.
 
 ---
 
@@ -209,11 +226,11 @@ graph TD
     MainPage -->|state| DebtSection[DebtSection]
     MainPage -->|state| RoutineSection[RoutineSection]
     MainPage -->|state| OneTimeSection[OneTimeSection]
-    
+
     MainPage -->|Trigger submit| Validate{Apakah income valid?}
     Validate -->|Tidak| ScrollToIncome[Scroll ke Income & Tampilkan error inline]
     Validate -->|Ya| SetHasCalculated[hasCalculated = true & Scroll ke Dashboard]
-    
+
     MainPage -->|hasCalculated == true| Dashboard[Dashboard]
     Dashboard --> DashHero
     Dashboard --> MetricsSummary

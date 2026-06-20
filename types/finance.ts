@@ -5,7 +5,7 @@ export interface Pajak {
   id: string;
   nama: string;
   jenis: JenisPotongan;
-  nilai: number; // Persen (0-100) atau nominal Rp
+  nilai: number; // Persen (0-100) atau nominal
 }
 
 export interface Income {
@@ -55,8 +55,8 @@ export interface FinancialState {
 
 export interface MonthlyProjection {
   bulanIndex: number; // 0-11
-  bulanNama: string;  // Contoh: "Jun"
-  tahun: number;      // Contoh: 2026
+  bulanNama: string; // Contoh: "Jun"
+  tahun: number; // Contoh: 2026
   pendapatanKotor: number;
   pajakPotongan: number;
   pendapatanBersih: number;

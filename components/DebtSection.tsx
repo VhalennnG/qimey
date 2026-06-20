@@ -2,7 +2,11 @@
 
 import React from "react";
 import { ItemBerkala, Periode } from "../types/finance";
-import { formatInputNumber, parseInputNumber, getCurrencyConfig } from "../utils/format";
+import {
+  formatInputNumber,
+  parseInputNumber,
+  getCurrencyConfig,
+} from "../utils/format";
 import { Language, translations } from "../utils/translations";
 import { LuTrash2, LuPlus, LuInfo, LuCreditCard } from "react-icons/lu";
 
@@ -13,7 +17,12 @@ interface Props {
   currency: string;
 }
 
-export default function DebtSection({ debts, onChange, lang, currency }: Props) {
+export default function DebtSection({
+  debts,
+  onChange,
+  lang,
+  currency,
+}: Props) {
   const t = translations[lang];
   const curConfig = getCurrencyConfig(currency);
 
@@ -35,7 +44,7 @@ export default function DebtSection({ debts, onChange, lang, currency }: Props) 
 
   const updateDebt = (id: string, fields: Partial<ItemBerkala>) => {
     onChange(
-      debts.map((item) => (item.id === id ? { ...item, ...fields } : item))
+      debts.map((item) => (item.id === id ? { ...item, ...fields } : item)),
     );
   };
 
@@ -64,7 +73,8 @@ export default function DebtSection({ debts, onChange, lang, currency }: Props) 
             {/* Header */}
             <div className="flex justify-between items-center mb-4">
               <span className="text-sm font-semibold text-slate-700">
-                {debt.nama || `${lang === "id" ? "Cicilan" : "Installment"} #${index + 1}`}
+                {debt.nama ||
+                  `${lang === "id" ? "Cicilan" : "Installment"} #${index + 1}`}
               </span>
               <button
                 type="button"
@@ -79,12 +89,20 @@ export default function DebtSection({ debts, onChange, lang, currency }: Props) 
             {/* Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-500 mb-1">{t.debtName}</label>
+                <label className="block text-xs font-medium text-slate-500 mb-1">
+                  {t.debtName}
+                </label>
                 <input
                   type="text"
                   value={debt.nama}
-                  placeholder={lang === "id" ? "Misal: Cicilan Motor, KPR" : "e.g. Motor Installment, Mortgage"}
-                  onChange={(e) => updateDebt(debt.id, { nama: e.target.value })}
+                  placeholder={
+                    lang === "id"
+                      ? "Misal: Cicilan Motor, KPR"
+                      : "e.g. Car Installment, Mortgage"
+                  }
+                  onChange={(e) =>
+                    updateDebt(debt.id, { nama: e.target.value })
+                  }
                   className="w-full h-10 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-warning focus:ring-2 focus:ring-warning/10"
                 />
               </div>
@@ -101,7 +119,9 @@ export default function DebtSection({ debts, onChange, lang, currency }: Props) 
                 </label>
                 <select
                   value={debt.periode}
-                  onChange={(e) => updateDebt(debt.id, { periode: e.target.value as Periode })}
+                  onChange={(e) =>
+                    updateDebt(debt.id, { periode: e.target.value as Periode })
+                  }
                   className="w-full h-10 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-warning focus:ring-2 focus:ring-warning/10"
                 >
                   <option value="bulanan">{t.monthly}</option>
@@ -112,14 +132,24 @@ export default function DebtSection({ debts, onChange, lang, currency }: Props) 
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-500 mb-1">{t.debtDuration}</label>
+                <label className="block text-xs font-medium text-slate-500 mb-1">
+                  {t.debtDuration}
+                </label>
                 <input
                   type="text"
                   value={debt.masaBulan || ""}
-                  placeholder={lang === "id" ? "Jumlah bulan, misal: 12" : "Number of months, e.g. 12"}
+                  placeholder={
+                    lang === "id"
+                      ? "Jumlah bulan, misal: 12"
+                      : "Number of months, e.g. 12"
+                  }
                   onChange={(e) => {
-                    const parsed = Number(e.target.value.replace(/[^0-9]/g, ""));
-                    updateDebt(debt.id, { masaBulan: isNaN(parsed) || parsed < 1 ? 1 : parsed });
+                    const parsed = Number(
+                      e.target.value.replace(/[^0-9]/g, ""),
+                    );
+                    updateDebt(debt.id, {
+                      masaBulan: isNaN(parsed) || parsed < 1 ? 1 : parsed,
+                    });
                   }}
                   className="w-full h-10 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-warning focus:ring-2 focus:ring-warning/10"
                 />
@@ -129,14 +159,22 @@ export default function DebtSection({ debts, onChange, lang, currency }: Props) 
             {/* Nominal */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div>
-                <label className="block text-xs font-medium text-slate-500 mb-1">{t.amount}</label>
+                <label className="block text-xs font-medium text-slate-500 mb-1">
+                  {t.amount}
+                </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-medium">{curConfig.symbol}</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-medium">
+                    {curConfig.symbol}
+                  </span>
                   <input
                     type="text"
                     value={formatInputNumber(debt.nominal, currency)}
                     placeholder="0"
-                    onChange={(e) => updateDebt(debt.id, { nominal: parseInputNumber(e.target.value) })}
+                    onChange={(e) =>
+                      updateDebt(debt.id, {
+                        nominal: parseInputNumber(e.target.value),
+                      })
+                    }
                     className="w-full h-10 pl-10 pr-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-warning focus:ring-2 focus:ring-warning/10 font-medium"
                   />
                 </div>

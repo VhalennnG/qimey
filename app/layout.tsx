@@ -5,8 +5,9 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Fyvian - Kalkulator Arus Kas Akhir Tahun",
-  description: "Ketahui sisa saldo tabungan kumulatif Anda dari bulan berjalan sampai Desember secara transparan dan aman di browser lokal Anda.",
+  title: "Qimey - Kalkulator Arus Kas Akhir Tahun",
+  description:
+    "Ketahui sisa saldo tabungan kumulatif Anda dari bulan berjalan sampai Desember secara transparan dan aman di browser lokal Anda.",
 };
 
 export const viewport: Viewport = {

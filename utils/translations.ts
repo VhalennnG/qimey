@@ -31,7 +31,7 @@ export const translations = {
     taxType: "Jenis",
     taxValue: "Nilai",
     taxPercent: "Persen %",
-    taxNominal: "Nominal Rp",
+    taxNominal: "Nominal",
     addIncome: "Tambah Sumber Pendapatan",
 
     // Savings
@@ -99,7 +99,7 @@ export const translations = {
     paidOffBadge: "lunas",
     endedBadge: "berakhir",
     errorIncomeNominal:
-      "Nominal pendapatan wajib diisi dan harus lebih besar dari Rp 0.",
+      "Nominal pendapatan wajib diisi dan harus lebih besar dari 0.",
     errorGlobalIncome: "Harus ada minimal 1 sumber pendapatan.",
     tooltipAssumption: "Diasumsikan 30 hari/bulan dan 4,33 minggu/bulan.",
     changeTax: "Ubah",
@@ -140,7 +140,7 @@ export const translations = {
     taxType: "Type",
     taxValue: "Value",
     taxPercent: "Percent %",
-    taxNominal: "Amount Rp",
+    taxNominal: "Amount",
     addIncome: "Add Income Source",
 
     // Savings
@@ -210,8 +210,7 @@ export const translations = {
     endsIn: "ends in",
     paidOffBadge: "paid off",
     endedBadge: "ends",
-    errorIncomeNominal:
-      "Income amount is required and must be greater than Rp 0.",
+    errorIncomeNominal: "Income amount is required and must be greater than 0.",
     errorGlobalIncome: "Must have at least 1 income source.",
     tooltipAssumption: "Assumed 30 days/month and 4.33 weeks/month.",
     changeTax: "Change",
