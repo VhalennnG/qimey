@@ -43,6 +43,10 @@ export default function MainPage() {
   const [mounted, setMounted] = useState(false);
   const [startMonthIndex, setStartMonthIndex] = useState(5); // Default: Juni
   const [currentYear, setCurrentYear] = useState(2026); // Default: 2026
+  const [endMonthIndex, setEndMonthIndex] = useState(11); // Default: December
+  const [endYear, setEndYear] = useState(2026); // Default: current year
+  const [lastCalculatedEndMonth, setLastCalculatedEndMonth] = useState(11);
+  const [lastCalculatedEndYear, setLastCalculatedEndYear] = useState(2026);
 
   const t = translations[lang];
 
@@ -58,6 +62,8 @@ export default function MainPage() {
     const savedCurrency = localStorage.getItem("fyvian_currency");
     const savedLastState = localStorage.getItem("fyvian_last_calculated_state");
     const savedLastCurrency = localStorage.getItem("fyvian_last_calculated_currency");
+    const savedEndMonth = localStorage.getItem("fyvian_end_month");
+    const savedEndYear = localStorage.getItem("fyvian_end_year");
 
     let loadedState: FinancialState | null = null;
     if (savedState) {
@@ -103,6 +109,16 @@ export default function MainPage() {
         setLastCalculatedCurrency(loadedCurrency);
       }
     }
+
+    if (savedEndMonth) {
+      setEndMonthIndex(Number(savedEndMonth));
+    }
+    if (savedEndYear) {
+      setEndYear(Number(savedEndYear));
+    } else {
+      setEndYear(d.getFullYear());
+    }
+
     setMounted(true);
   }, []);
 
@@ -129,6 +145,16 @@ export default function MainPage() {
     if (!mounted) return;
     localStorage.setItem("fyvian_currency", currency);
   }, [currency, mounted]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    localStorage.setItem("fyvian_end_month", String(endMonthIndex));
+  }, [endMonthIndex, mounted]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    localStorage.setItem("fyvian_end_year", String(endYear));
+  }, [endYear, mounted]);
 
   // 3. Language toggle
   const toggleLanguage = () => {
@@ -158,7 +184,9 @@ export default function MainPage() {
   const isDirty =
     hasCalculated &&
     (JSON.stringify(financialState) !== JSON.stringify(lastCalculatedState) ||
-      currency !== lastCalculatedCurrency);
+      currency !== lastCalculatedCurrency ||
+      endMonthIndex !== lastCalculatedEndMonth ||
+      endYear !== lastCalculatedEndYear);
 
   // 4. Form Validation and Submit handler
   const handleSubmit = () => {
@@ -203,6 +231,8 @@ export default function MainPage() {
     setHasCalculated(true);
     setLastCalculatedState(financialState);
     setLastCalculatedCurrency(currency);
+    setLastCalculatedEndMonth(endMonthIndex);
+    setLastCalculatedEndYear(endYear);
     localStorage.setItem("fyvian_last_calculated_state", JSON.stringify(financialState));
     localStorage.setItem("fyvian_last_calculated_currency", currency);
 
@@ -220,6 +250,10 @@ export default function MainPage() {
     setHasCalculated(false);
     setLastCalculatedState(null);
     setLastCalculatedCurrency("");
+    setLastCalculatedEndMonth(11);
+    setLastCalculatedEndYear(currentYear);
+    setEndMonthIndex(11);
+    setEndYear(currentYear);
     setErrors({});
     localStorage.setItem(
       "fyvian_financial_state",
@@ -245,7 +279,7 @@ export default function MainPage() {
 
   // Calculate projections based on last calculated state (so edits don't auto-update until submitted)
   const projections: MonthlyProjection[] = hasCalculated && lastCalculatedState
-    ? calculateProjection(lastCalculatedState, startMonthIndex, currentYear)
+    ? calculateProjection(lastCalculatedState, startMonthIndex, currentYear, lastCalculatedEndMonth, lastCalculatedEndYear)
     : [];
 
   return (
@@ -379,6 +413,10 @@ export default function MainPage() {
           errors={errors}
           startMonthIndex={startMonthIndex}
           currentYear={currentYear}
+          endMonthIndex={endMonthIndex}
+          endYear={endYear}
+          onEndMonthChange={setEndMonthIndex}
+          onEndYearChange={setEndYear}
           lang={lang}
           currency={currency}
           onCurrencyChange={setCurrency}

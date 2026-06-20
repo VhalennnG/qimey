@@ -111,6 +111,28 @@ export const translations = {
     subTitleProj: "Proyeksi Keuangan Mandiri",
     cashflowTitle: "Arus Kas Bulanan",
     grossIncome: "Pendapatan Bersih",
+
+    // Projection Range
+    projectionRange: "Rentang Proyeksi",
+    projectionRangeSub: "Pilih sampai bulan dan tahun berapa proyeksi Anda",
+    endMonth: "Bulan Akhir",
+    endYear: "Tahun Akhir",
+
+    // Report Table
+    reportTitle: "Laporan Simulasi Keuangan",
+    reportSub: "Rincian arus kas bulanan dalam bentuk tabel",
+    colMonth: "Bulan",
+    colIncome: "Pendapatan",
+    colTax: "Pajak",
+    colDebt: "Cicilan",
+    colRoutine: "Rutin",
+    colOneTime: "Sekali Bayar",
+    colCashflow: "Arus Kas",
+    colBalance: "Saldo",
+    colNotes: "Keterangan",
+    notesPaidOff: "Lunas",
+    notesEnded: "Berakhir",
+    notesDeficit: "Defisit",
   },
   en: {
     appName: "Qimey",
@@ -224,6 +246,28 @@ export const translations = {
     subTitleProj: "Self-guided Financial Projection",
     cashflowTitle: "Monthly Cash Flow",
     grossIncome: "Net Income",
+
+    // Projection Range
+    projectionRange: "Projection Range",
+    projectionRangeSub: "Set the end month and year for your projections",
+    endMonth: "End Month",
+    endYear: "End Year",
+
+    // Report Table
+    reportTitle: "Financial Simulation Report",
+    reportSub: "Monthly cash flow breakdown in table format",
+    colMonth: "Month",
+    colIncome: "Income",
+    colTax: "Tax",
+    colDebt: "Debt",
+    colRoutine: "Routine",
+    colOneTime: "One-Time",
+    colCashflow: "Cash Flow",
+    colBalance: "Balance",
+    colNotes: "Notes",
+    notesPaidOff: "Paid Off",
+    notesEnded: "Ended",
+    notesDeficit: "Deficit",
   },
 };
 

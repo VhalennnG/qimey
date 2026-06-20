@@ -2,13 +2,13 @@
 
 import React from "react";
 import { FinancialState, Income, Tabungan, ItemBerkala, PengeluaranRutin, PengeluaranSekaliBayar } from "../types/finance";
-import { Language, translations } from "../utils/translations";
+import { Language, translations, INDONESIAN_MONTHS, ENGLISH_MONTHS } from "../utils/translations";
 import IncomeSection from "./IncomeSection";
 import SavingsSection from "./SavingsSection";
 import DebtSection from "./DebtSection";
 import RoutineSection from "./RoutineSection";
 import OneTimeSection from "./OneTimeSection";
-import { LuSave, LuRotateCcw } from "react-icons/lu";
+import { LuSave, LuRotateCcw, LuCalendarRange } from "react-icons/lu";
 
 interface Props {
   state: FinancialState;
@@ -18,6 +18,10 @@ interface Props {
   errors: Record<string, string>;
   startMonthIndex: number;
   currentYear: number;
+  endMonthIndex: number;
+  endYear: number;
+  onEndMonthChange: (month: number) => void;
+  onEndYearChange: (year: number) => void;
   lang: Language;
   currency: string;
   onCurrencyChange: (currency: string) => void;
@@ -33,6 +37,10 @@ export default function FormContainer({
   errors,
   startMonthIndex,
   currentYear,
+  endMonthIndex,
+  endYear,
+  onEndMonthChange,
+  onEndYearChange,
   lang,
   currency,
   onCurrencyChange,
@@ -40,6 +48,7 @@ export default function FormContainer({
   hasCalculated,
 }: Props) {
   const t = translations[lang];
+  const monthsList = lang === "id" ? INDONESIAN_MONTHS : ENGLISH_MONTHS;
   
   const handleIncomesChange = (incomes: Income[]) => {
     onChange({ ...state, incomes });
@@ -61,10 +70,17 @@ export default function FormContainer({
     onChange({ ...state, pengeluaranSekaliBayar });
   };
 
+  // Generate year options (current year to +10)
+  const yearOptions: number[] = [];
+  for (let y = currentYear; y <= currentYear + 10; y++) {
+    yearOptions.push(y);
+  }
+
   return (
     <div className="space-y-6">
-      {/* Premium Currency Switcher Card */}
-      <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6">
+      {/* Premium Currency & Range Card */}
+      <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 space-y-5">
+        {/* Currency row */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -83,6 +99,49 @@ export default function FormContainer({
               placeholder="Rp / USD / EUR"
               className="w-full h-10 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 font-semibold"
             />
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-slate-100" />
+
+        {/* Projection Range row */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <LuCalendarRange size={13} />
+              {t.projectionRange}
+            </h4>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              {t.projectionRangeSub}
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <div>
+              <label className="block text-[10px] font-medium text-slate-400 mb-1">{t.endMonth}</label>
+              <select
+                value={endMonthIndex}
+                onChange={(e) => onEndMonthChange(Number(e.target.value))}
+                className="h-10 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 font-semibold"
+              >
+                {monthsList.map((m, idx) => (
+                  <option key={idx} value={idx}>{m}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[10px] font-medium text-slate-400 mb-1">{t.endYear}</label>
+              <select
+                value={endYear}
+                onChange={(e) => onEndYearChange(Number(e.target.value))}
+                className="h-10 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 font-semibold"
+              >
+                {yearOptions.map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -135,6 +194,8 @@ export default function FormContainer({
           onChange={handleOneTimeChange}
           startMonthIndex={startMonthIndex}
           currentYear={currentYear}
+          endMonthIndex={endMonthIndex}
+          endYear={endYear}
           lang={lang}
           currency={currency}
         />

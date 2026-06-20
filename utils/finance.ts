@@ -45,21 +45,40 @@ export function calculateTaxForIncome(income: Income): number {
 }
 
 /**
- * Generates the monthly financial projections from the current month until December.
- * Dibuat berdasarkan PRD seksyen 8.3 sampai 8.8.
+ * Helper to extract bulan and tahun from a PengeluaranSekaliBayar.bulanKejadian,
+ * supporting both legacy (number) and new ({ bulan, tahun }) formats.
+ */
+function parseBulanKejadian(
+  bulanKejadian: number | { bulan: number; tahun: number },
+  fallbackYear: number
+): { bulan: number; tahun: number } {
+  if (typeof bulanKejadian === "number") {
+    return { bulan: bulanKejadian, tahun: fallbackYear };
+  }
+  return bulanKejadian;
+}
+
+/**
+ * Generates the monthly financial projections from the start month/year
+ * to the specified end month/year (inclusive).
  */
 export function calculateProjection(
   state: FinancialState,
   startMonthIndex: number, // 0-11
-  currentYear: number
+  startYear: number,
+  endMonthIndex: number = 11, // 0-11, default December
+  endYear: number = startYear // default same year
 ): MonthlyProjection[] {
   const projections: MonthlyProjection[] = [];
-  const totalMonths = 12 - startMonthIndex;
+  
+  // Calculate total months in the projection range
+  const totalMonths = (endYear - startYear) * 12 + (endMonthIndex - startMonthIndex) + 1;
   
   let previousSaldo = state.tabungan.include ? state.tabungan.saldoSaatIni : 0;
   
   for (let m = 0; m < totalMonths; m++) {
-    const calendarMonthIndex = startMonthIndex + m;
+    const calendarMonthIndex = (startMonthIndex + m) % 12;
+    const calendarYear = startYear + Math.floor((startMonthIndex + m) / 12);
     const bulanNama = INDONESIAN_MONTHS[calendarMonthIndex];
     
     // 1. Pendapatan (PRD 8.3 & 8.4)
@@ -108,10 +127,11 @@ export function calculateProjection(
       totalRoutine += toMonthly(routine.nominal, routine.periode);
     });
     
-    // 4. Pengeluaran Sekali Bayar (aktif jika bulanKejadian === calendarMonthIndex)
+    // 4. Pengeluaran Sekali Bayar (aktif jika bulan & tahun cocok)
     let totalOneTime = 0;
     state.pengeluaranSekaliBayar.forEach((expense) => {
-      if (expense.bulanKejadian === calendarMonthIndex) {
+      const parsed = parseBulanKejadian(expense.bulanKejadian, startYear);
+      if (parsed.bulan === calendarMonthIndex && parsed.tahun === calendarYear) {
         totalOneTime += expense.nominal;
       }
     });
@@ -129,7 +149,7 @@ export function calculateProjection(
     projections.push({
       bulanIndex: calendarMonthIndex,
       bulanNama,
-      tahun: currentYear,
+      tahun: calendarYear,
       pendapatanKotor: totalPendapatanKotor,
       pajakPotongan: totalPajakPotongan,
       pendapatanBersih,

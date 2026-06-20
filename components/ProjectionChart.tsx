@@ -26,11 +26,19 @@ export default function ProjectionChart({ projections, lang, currency }: Props) 
   const monthsList = lang === "id" ? INDONESIAN_MONTHS : ENGLISH_MONTHS;
   const curSymbol = getCurrencyConfig(currency).symbol;
 
+  // Detect if projections span multiple years
+  const isMultiYear = projections.length > 0 &&
+    projections[projections.length - 1].tahun !== projections[0].tahun;
+
   // Map data to Recharts format
   const data = projections.map((p) => {
     const totalOutflow = p.cicilanUtang + p.pengeluaranRutin + p.pengeluaranSekaliBayar;
+    // Use "Mon 'YY" format when spanning multiple years to avoid duplicate month names
+    const label = isMultiYear
+      ? `${monthsList[p.bulanIndex]} '${String(p.tahun).slice(2)}`
+      : monthsList[p.bulanIndex];
     return {
-      name: monthsList[p.bulanIndex], // Localized month name
+      name: label,
       saldo: p.saldo,
       isNegative: p.saldo < 0,
       hasLunas: p.lunasCicilanIds.length > 0,

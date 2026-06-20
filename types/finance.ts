@@ -42,7 +42,7 @@ export interface PengeluaranSekaliBayar {
   id: string;
   title: string;
   nominal: number;
-  bulanKejadian: number; // 0-11 (Januari - Desember)
+  bulanKejadian: number | { bulan: number; tahun: number }; // Legacy: 0-11, New: { bulan: 0-11, tahun: YYYY }
 }
 
 export interface FinancialState {

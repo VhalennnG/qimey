@@ -6,6 +6,7 @@ import { FinancialState, MonthlyProjection } from "../types/finance";
 import { Language, translations, INDONESIAN_MONTHS, ENGLISH_MONTHS } from "../utils/translations";
 import CompositionBreakdown from "./CompositionBreakdown";
 import StatusDetails from "./StatusDetails";
+import ProjectionTable from "./ProjectionTable";
 import { LuTriangleAlert } from "react-icons/lu";
 
 // Dynamically import to avoid SSR errors
@@ -92,6 +93,9 @@ export default function Dashboard({
         <CompositionBreakdown projections={projections} lang={lang} currency={currency} />
         <StatusDetails projections={projections} state={state} lang={lang} />
       </div>
+
+      {/* Financial Report Table */}
+      <ProjectionTable projections={projections} state={state} lang={lang} currency={currency} />
     </div>
   );
 }
