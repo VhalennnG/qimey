@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import { Income, Pajak, Periode, JenisPotongan } from "../types/finance";
-import { formatInputNumber, parseInputNumber, CURRENCIES } from "../utils/format";
+import { formatInputNumber, parseInputNumber, getCurrencyConfig } from "../utils/format";
 import { Language, translations } from "../utils/translations";
-import { Trash2, Plus, Info, ChevronDown, ChevronUp, Receipt } from "lucide-react";
+import { LuTrash2, LuPlus, LuInfo, LuChevronDown, LuChevronUp, LuReceipt, LuWallet } from "react-icons/lu";
 
 interface Props {
   incomes: Income[];
@@ -17,7 +17,7 @@ interface Props {
 export default function IncomeSection({ incomes, onChange, errors, lang, currency }: Props) {
   const [expandedTaxId, setExpandedTaxId] = useState<string | null>(null);
   const t = translations[lang];
-  const curConfig = CURRENCIES[currency] || CURRENCIES.IDR;
+  const curConfig = getCurrencyConfig(currency);
 
   const addIncome = () => {
     const newIncome: Income = {
@@ -78,7 +78,9 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
       <div className="flex justify-between items-center">
         <div>
           <h3 className="text-base font-semibold text-slate-800 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center text-xs font-bold font-sans">1</span>
+            <span className="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center text-xs font-semibold">
+              <LuWallet size={13} />
+            </span>
             {t.incomeTitle}
           </h3>
           <p className="text-xs text-slate-500 mt-1">{t.incomeSub}</p>
@@ -107,7 +109,7 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
                   className="p-1.5 rounded-lg text-slate-400 hover:text-danger hover:bg-danger-light/50 btn-hover-transition"
                   aria-label="Hapus income"
                 >
-                  <Trash2 size={16} />
+                  <LuTrash2 size={16} />
                 </button>
               </div>
 
@@ -128,7 +130,7 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
                   <label className="block text-xs font-medium text-slate-500 mb-1">
                     {t.period}
                     <span className="inline-block ml-1 group relative cursor-pointer text-slate-400 hover:text-slate-600">
-                      <Info size={12} className="inline" />
+                      <LuInfo size={12} className="inline" />
                       <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block w-48 p-2 bg-slate-800 text-[10px] text-white rounded shadow-lg z-50 text-center font-normal leading-normal">
                         {t.tooltipAssumption}
                       </span>
@@ -199,7 +201,7 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
                 >
                   <div className="flex items-center gap-2">
                     <div className="p-1 rounded-md bg-brand-bgLight text-brand-dark">
-                      <Receipt size={14} />
+                      <LuReceipt size={14} />
                     </div>
                     <span className="text-xs font-medium text-slate-700">
                       {income.pajak.length > 0 
@@ -213,7 +215,7 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
                         ? (lang === "id" ? "Sembunyikan" : "Hide") 
                         : `${t.changeTax} / ${t.addTaxShort}`}
                     </span>
-                    {expandedTaxId === income.id ? <ChevronUp size={14} className="text-slate-400" /> : <ChevronDown size={14} className="text-slate-400" />}
+                    {expandedTaxId === income.id ? <LuChevronUp size={14} className="text-slate-400" /> : <LuChevronDown size={14} className="text-slate-400" />}
                   </div>
                 </button>
 
@@ -272,7 +274,7 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
                               className="p-1 text-slate-400 hover:text-danger rounded hover:bg-slate-100 btn-hover-transition"
                               aria-label="Hapus potongan"
                             >
-                              <Trash2 size={14} />
+                              <LuTrash2 size={14} />
                             </button>
                           </div>
                         ))}
@@ -283,7 +285,7 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
                       onClick={() => addTax(income.id)}
                       className="w-full py-1.5 border border-dashed border-brand-light text-[11px] text-brand-dark font-medium rounded-md hover:bg-brand-bgLight/40 flex items-center justify-center gap-1 btn-hover-transition"
                     >
-                      <Plus size={12} /> {t.addTax}
+                      <LuPlus size={12} /> {t.addTax}
                     </button>
                   </div>
                 )}
@@ -298,7 +300,7 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
         onClick={addIncome}
         className="w-full py-3 border border-dashed border-brand text-sm text-brand font-medium rounded-xl hover:bg-brand-bgLight/20 flex items-center justify-center gap-2 btn-hover-transition"
       >
-        <Plus size={16} /> {t.addIncome}
+        <LuPlus size={16} /> {t.addIncome}
       </button>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import dynamic from "next/dynamic";
 import { FinancialState, MonthlyProjection } from "../types/finance";
 import { Language, translations, INDONESIAN_MONTHS, ENGLISH_MONTHS } from "../utils/translations";
@@ -8,7 +8,7 @@ import DashHero from "./DashHero";
 import MetricsSummary from "./MetricsSummary";
 import CompositionBreakdown from "./CompositionBreakdown";
 import StatusDetails from "./StatusDetails";
-import { AlertTriangle } from "lucide-react";
+import { LuTriangleAlert } from "react-icons/lu";
 
 // Dynamically import to avoid SSR errors
 const ProjectionChart = dynamic(() => import("./ProjectionChart"), { ssr: false });
@@ -30,15 +30,8 @@ export default function Dashboard({
   lang,
   currency,
 }: Props) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const t = translations[lang];
   const monthsList = lang === "id" ? INDONESIAN_MONTHS : ENGLISH_MONTHS;
-
-  useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [projections]);
 
   const allIncomesFinite = state.incomes.length > 0 && state.incomes.every(inc => inc.masaBulan !== null);
   
@@ -68,7 +61,7 @@ export default function Dashboard({
 
   return (
     <div 
-      ref={containerRef}
+      id="dashboard-results"
       className="space-y-6 pt-6 border-t border-slate-200 scroll-mt-6 animate-fadeIn"
     >
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 pb-2">
@@ -84,7 +77,7 @@ export default function Dashboard({
       {/* Global Income Ending Warning Banner */}
       {showGlobalIncomeWarning && (
         <div className="bg-warning-light border border-warning/40 rounded-2xl p-4 flex gap-3 text-warning-dark shadow-sm animate-fadeIn">
-          <AlertTriangle size={20} className="flex-shrink-0 mt-0.5" />
+          <LuTriangleAlert size={20} className="flex-shrink-0 mt-0.5" />
           <div className="space-y-1">
             <p className="text-xs font-semibold text-slate-800">
               {t.alertHeader}

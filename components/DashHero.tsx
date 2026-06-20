@@ -3,7 +3,7 @@
 import React from "react";
 import { formatCurrency } from "../utils/format";
 import { Language, translations } from "../utils/translations";
-import { Info } from "lucide-react";
+import { LuInfo } from "react-icons/lu";
 
 interface Props {
   saldoAkhir: number;
@@ -35,7 +35,7 @@ export default function DashHero({ saldoAkhir, startMonthName, startYear, lang, 
       </div>
 
       <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400">
-        <Info size={14} className="flex-shrink-0" />
+        <LuInfo size={14} className="flex-shrink-0" />
         <span>{t.calculatedFrom} {startMonthName} {startYear}</span>
       </div>
     </div>

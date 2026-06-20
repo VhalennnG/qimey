@@ -12,7 +12,7 @@ import {
   ReferenceLine,
 } from "recharts";
 import { MonthlyProjection } from "../types/finance";
-import { formatCurrency, CURRENCIES } from "../utils/format";
+import { formatCurrency, getCurrencyConfig } from "../utils/format";
 import { Language, translations, INDONESIAN_MONTHS, ENGLISH_MONTHS } from "../utils/translations";
 
 interface Props {
@@ -24,7 +24,7 @@ interface Props {
 export default function ProjectionChart({ projections, lang, currency }: Props) {
   const t = translations[lang];
   const monthsList = lang === "id" ? INDONESIAN_MONTHS : ENGLISH_MONTHS;
-  const curSymbol = CURRENCIES[currency]?.symbol || "Rp";
+  const curSymbol = getCurrencyConfig(currency).symbol;
 
   // Map data to Recharts format
   const data = projections.map((p) => {

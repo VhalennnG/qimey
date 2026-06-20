@@ -2,9 +2,9 @@
 
 import React from "react";
 import { Tabungan } from "../types/finance";
-import { formatInputNumber, parseInputNumber, CURRENCIES } from "../utils/format";
+import { formatInputNumber, parseInputNumber, getCurrencyConfig } from "../utils/format";
 import { Language, translations } from "../utils/translations";
-import { PiggyBank } from "lucide-react";
+import { LuPiggyBank } from "react-icons/lu";
 
 interface Props {
   tabungan: Tabungan;
@@ -15,7 +15,7 @@ interface Props {
 
 export default function SavingsSection({ tabungan, onChange, lang, currency }: Props) {
   const t = translations[lang];
-  const curConfig = CURRENCIES[currency] || CURRENCIES.IDR;
+  const curConfig = getCurrencyConfig(currency);
 
   const toggleInclude = () => {
     onChange({
@@ -35,7 +35,9 @@ export default function SavingsSection({ tabungan, onChange, lang, currency }: P
     <div className="space-y-4">
       <div>
         <h3 className="text-base font-semibold text-slate-800 flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center text-xs font-bold font-sans">2</span>
+          <span className="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center text-xs font-semibold">
+            <LuPiggyBank size={13} />
+          </span>
           {t.savingsTitle}
           <span className="text-[10px] bg-slate-100 text-slate-500 rounded-full px-2 py-0.5 font-normal ml-1">
             {t.optional}
@@ -82,7 +84,7 @@ export default function SavingsSection({ tabungan, onChange, lang, currency }: P
         {tabungan.include && (
           <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center gap-4 animate-fadeIn">
             <div className="p-2 rounded-lg bg-brand-bgLight text-brand-dark hidden sm:block">
-              <PiggyBank size={24} />
+              <LuPiggyBank size={24} />
             </div>
             
             <div className="flex-1 w-full">

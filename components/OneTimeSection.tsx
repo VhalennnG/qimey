@@ -2,9 +2,9 @@
 
 import React from "react";
 import { PengeluaranSekaliBayar } from "../types/finance";
-import { formatInputNumber, parseInputNumber, CURRENCIES } from "../utils/format";
+import { formatInputNumber, parseInputNumber, getCurrencyConfig } from "../utils/format";
 import { Language, translations, INDONESIAN_MONTHS, ENGLISH_MONTHS } from "../utils/translations";
-import { Trash2, Plus } from "lucide-react";
+import { LuTrash2, LuPlus, LuShoppingBag } from "react-icons/lu";
 
 interface Props {
   expenses: PengeluaranSekaliBayar[];
@@ -25,7 +25,7 @@ export default function OneTimeSection({
 }: Props) {
   const t = translations[lang];
   const monthsList = lang === "id" ? INDONESIAN_MONTHS : ENGLISH_MONTHS;
-  const curConfig = CURRENCIES[currency] || CURRENCIES.IDR;
+  const curConfig = getCurrencyConfig(currency);
 
   const availableMonths: { index: number; label: string }[] = [];
   for (let i = startMonthIndex; i <= 11; i++) {
@@ -59,7 +59,9 @@ export default function OneTimeSection({
     <div className="space-y-4">
       <div>
         <h3 className="text-base font-semibold text-slate-800 flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-orange-600 text-white flex items-center justify-center text-xs font-bold font-sans">5</span>
+          <span className="w-6 h-6 rounded-full bg-orange-600 text-white flex items-center justify-center text-xs font-semibold">
+            <LuShoppingBag size={13} />
+          </span>
           {t.oneTimeTitle}
           <span className="text-[10px] bg-slate-100 text-slate-500 rounded-full px-2 py-0.5 font-normal ml-1">
             {t.optional}
@@ -126,7 +128,7 @@ export default function OneTimeSection({
                 className="p-2 text-slate-400 hover:text-danger rounded-lg hover:bg-danger-light/50 self-end md:mb-0.5 btn-hover-transition"
                 aria-label="Hapus pengeluaran"
               >
-                <Trash2 size={16} />
+                <LuTrash2 size={16} />
               </button>
             </div>
           ))
@@ -138,7 +140,7 @@ export default function OneTimeSection({
         onClick={addExpense}
         className="w-full py-3 border border-dashed border-orange-300 text-sm text-orange-600 font-medium rounded-xl hover:bg-orange-50/50 flex items-center justify-center gap-2 btn-hover-transition"
       >
-        <Plus size={16} /> {t.addOneTime}
+        <LuPlus size={16} /> {t.addOneTime}
       </button>
     </div>
   );

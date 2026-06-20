@@ -2,9 +2,9 @@
 
 import React from "react";
 import { ItemBerkala, Periode } from "../types/finance";
-import { formatInputNumber, parseInputNumber, CURRENCIES } from "../utils/format";
+import { formatInputNumber, parseInputNumber, getCurrencyConfig } from "../utils/format";
 import { Language, translations } from "../utils/translations";
-import { Trash2, Plus, Info } from "lucide-react";
+import { LuTrash2, LuPlus, LuInfo, LuCreditCard } from "react-icons/lu";
 
 interface Props {
   debts: ItemBerkala[];
@@ -15,7 +15,7 @@ interface Props {
 
 export default function DebtSection({ debts, onChange, lang, currency }: Props) {
   const t = translations[lang];
-  const curConfig = CURRENCIES[currency] || CURRENCIES.IDR;
+  const curConfig = getCurrencyConfig(currency);
 
   const addDebt = () => {
     const newDebt: ItemBerkala = {
@@ -43,7 +43,9 @@ export default function DebtSection({ debts, onChange, lang, currency }: Props) 
     <div className="space-y-4">
       <div>
         <h3 className="text-base font-semibold text-slate-800 flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-warning text-white flex items-center justify-center text-xs font-bold font-sans">3</span>
+          <span className="w-6 h-6 rounded-full bg-warning text-white flex items-center justify-center text-xs font-semibold">
+            <LuCreditCard size={13} />
+          </span>
           {t.debtTitle}
           <span className="text-[10px] bg-slate-100 text-slate-500 rounded-full px-2 py-0.5 font-normal ml-1">
             {t.optional}
@@ -70,7 +72,7 @@ export default function DebtSection({ debts, onChange, lang, currency }: Props) 
                 className="p-1.5 rounded-lg text-slate-400 hover:text-danger hover:bg-danger-light/50 btn-hover-transition"
                 aria-label="Hapus cicilan"
               >
-                <Trash2 size={16} />
+                <LuTrash2 size={16} />
               </button>
             </div>
 
@@ -91,7 +93,7 @@ export default function DebtSection({ debts, onChange, lang, currency }: Props) 
                 <label className="block text-xs font-medium text-slate-500 mb-1">
                   {t.period}
                   <span className="inline-block ml-1 group relative cursor-pointer text-slate-400 hover:text-slate-600">
-                    <Info size={12} className="inline" />
+                    <LuInfo size={12} className="inline" />
                     <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block w-48 p-2 bg-slate-800 text-[10px] text-white rounded shadow-lg z-50 text-center font-normal leading-normal">
                       {t.tooltipAssumption}
                     </span>
@@ -149,7 +151,7 @@ export default function DebtSection({ debts, onChange, lang, currency }: Props) 
         onClick={addDebt}
         className="w-full py-3 border border-dashed border-warning text-sm text-warning font-medium rounded-xl hover:bg-warning-light/20 flex items-center justify-center gap-2 btn-hover-transition"
       >
-        <Plus size={16} /> {t.addDebt}
+        <LuPlus size={16} /> {t.addDebt}
       </button>
     </div>
   );

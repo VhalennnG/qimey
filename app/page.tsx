@@ -32,7 +32,7 @@ export default function MainPage() {
   const [hasCalculated, setHasCalculated] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [lang, setLang] = useState<Language>("id");
-  const [currency, setCurrency] = useState<string>("IDR");
+  const [currency, setCurrency] = useState<string>("Rp");
   
   const [mounted, setMounted] = useState(false);
   const [startMonthIndex, setStartMonthIndex] = useState(5); // Default: Juni
@@ -61,11 +61,15 @@ export default function MainPage() {
     if (savedCalc === "true") {
       setHasCalculated(true);
     }
+    let activeLang: Language = "id";
     if (savedLang === "id" || savedLang === "en") {
       setLang(savedLang);
+      activeLang = savedLang;
     }
     if (savedCurrency) {
       setCurrency(savedCurrency);
+    } else {
+      setCurrency(activeLang === "en" ? "USD" : "Rp");
     }
     setMounted(true);
   }, []);
@@ -93,7 +97,25 @@ export default function MainPage() {
 
   // 3. Language toggle
   const toggleLanguage = () => {
-    setLang((prev) => (prev === "id" ? "en" : "id"));
+    setLang((prevLang) => {
+      const nextLang = prevLang === "id" ? "en" : "id";
+      
+      // Update currency if it matches the default of the previous language
+      setCurrency((prevCurr) => {
+        const isPrevIdDefault = prevLang === "id" && (prevCurr === "Rp" || prevCurr === "IDR");
+        const isPrevEnDefault = prevLang === "en" && prevCurr === "USD";
+        
+        if (isPrevIdDefault) {
+          return "USD";
+        }
+        if (isPrevEnDefault) {
+          return "Rp";
+        }
+        return prevCurr;
+      });
+
+      return nextLang;
+    });
   };
 
   // 4. Form Validation and Submit handler
@@ -131,6 +153,13 @@ export default function MainPage() {
 
     setErrors({});
     setHasCalculated(true);
+
+    setTimeout(() => {
+      const el = document.getElementById("dashboard-results");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 100);
   };
 
   const handleReset = () => {
@@ -170,23 +199,45 @@ export default function MainPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Custom Sliding Language Toggle */}
-            <button 
-              type="button"
-              onClick={toggleLanguage}
-              className="relative flex items-center justify-between w-[72px] h-[34px] bg-slate-100 hover:bg-slate-200/80 border border-slate-200 rounded-full p-1 cursor-pointer transition-all duration-300 focus:outline-none select-none active:scale-95"
-              aria-label="Switch Language"
-            >
-              <span className="text-[13px] z-10 pl-1">🇮🇩</span>
-              <span className="text-[13px] z-10 pr-1">🇬🇧</span>
-              <div 
-                className={`absolute top-[3px] bottom-[3px] w-[30px] bg-white border border-slate-200 rounded-full shadow-sm transition-all duration-300 flex items-center justify-center text-[9px] font-extrabold text-slate-600 ${
-                  lang === "id" ? "left-[3px]" : "left-[37px]"
+            {/* Gooey Language Toggle Switch */}
+            <div className="gooey-toggle-container flex-shrink-0 relative">
+              <input 
+                className="gooey-toggle-input" 
+                type="checkbox" 
+                checked={lang === "en"}
+                onChange={toggleLanguage}
+                aria-label="Switch Language"
+              />
+              <svg className="gooey-toggle" viewBox="0 0 292 142" xmlns="http://www.w3.org/2000/svg">
+                <path className="gooey-toggle-background" d="M71 142C31.7878 142 0 110.212 0 71C0 31.7878 31.7878 0 71 0C110.212 0 119 30 146 30C173 30 182 0 221 0C260 0 292 31.7878 292 71C292 110.212 260.212 142 221 142C181.788 142 173 112 146 112C119 112 110.212 142 71 142Z" />
+                <g filter="url('#goo-lang')">
+                  <rect className="gooey-toggle-circle-center" x="13" y="42" width="116" height="58" rx="29" fill="#fff"/>
+                  <rect className="gooey-toggle-circle left" x="14" y="14" width="114" height="114" rx="58" fill="#fff" />
+                  <rect className="gooey-toggle-circle right" x="164" y="14" width="114" height="114" rx="58" fill="#fff" />
+                </g>
+                <filter id="goo-lang">
+                  <feGaussianBlur in="SourceGraphic" result="blur" stdDeviation="10" />
+                  <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
+                </filter>
+              </svg>
+              {/* Absolute overlay flags */}
+              <span 
+                className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 text-xs pointer-events-none select-none transition-all duration-300 z-20 ${
+                  lang === "id" ? "opacity-100 scale-110" : "opacity-40 grayscale"
                 }`}
+                style={{ left: '24.3%' }}
               >
-                {lang === "id" ? "ID" : "EN"}
-              </div>
-            </button>
+                🇮🇩
+              </span>
+              <span 
+                className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 text-xs pointer-events-none select-none transition-all duration-300 z-20 ${
+                  lang === "en" ? "opacity-100 scale-110" : "opacity-40 grayscale"
+                }`}
+                style={{ left: '75.7%' }}
+              >
+                🇬🇧
+              </span>
+            </div>
           </div>
         </div>
       </header>

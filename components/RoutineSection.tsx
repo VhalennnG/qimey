@@ -2,9 +2,9 @@
 
 import React from "react";
 import { PengeluaranRutin } from "../types/finance";
-import { formatInputNumber, parseInputNumber, CURRENCIES } from "../utils/format";
+import { formatInputNumber, parseInputNumber, getCurrencyConfig } from "../utils/format";
 import { Language, translations } from "../utils/translations";
-import { Trash2, Plus, Info } from "lucide-react";
+import { LuTrash2, LuPlus, LuInfo, LuCalendarDays } from "react-icons/lu";
 
 interface Props {
   expenses: PengeluaranRutin[];
@@ -15,7 +15,7 @@ interface Props {
 
 export default function RoutineSection({ expenses, onChange, lang, currency }: Props) {
   const t = translations[lang];
-  const curConfig = CURRENCIES[currency] || CURRENCIES.IDR;
+  const curConfig = getCurrencyConfig(currency);
 
   const addExpense = () => {
     const newExpense: PengeluaranRutin = {
@@ -41,7 +41,9 @@ export default function RoutineSection({ expenses, onChange, lang, currency }: P
     <div className="space-y-4">
       <div>
         <h3 className="text-base font-semibold text-slate-800 flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold font-sans">4</span>
+          <span className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-semibold">
+            <LuCalendarDays size={13} />
+          </span>
           {t.routineTitle}
           <span className="text-[10px] bg-slate-100 text-slate-500 rounded-full px-2 py-0.5 font-normal ml-1">
             {t.optional}
@@ -77,7 +79,7 @@ export default function RoutineSection({ expenses, onChange, lang, currency }: P
                 <label className="block text-[10px] font-medium text-slate-400 mb-1">
                   {t.period}
                   <span className="inline-block ml-1 group relative cursor-pointer text-slate-400">
-                    <Info size={10} className="inline" />
+                    <LuInfo size={10} className="inline" />
                     <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block w-40 p-2 bg-slate-800 text-[10px] text-white rounded shadow-lg z-50 text-center font-normal leading-normal">
                       {lang === "id" ? "Harian (x30) atau Mingguan (x4.33)" : "Daily (x30) or Weekly (x4.33)"}
                     </span>
@@ -114,7 +116,7 @@ export default function RoutineSection({ expenses, onChange, lang, currency }: P
                 className="p-2 text-slate-400 hover:text-danger rounded-lg hover:bg-danger-light/50 self-end md:mb-0.5 btn-hover-transition"
                 aria-label="Hapus pengeluaran"
               >
-                <Trash2 size={16} />
+                <LuTrash2 size={16} />
               </button>
             </div>
           ))
@@ -126,7 +128,7 @@ export default function RoutineSection({ expenses, onChange, lang, currency }: P
         onClick={addExpense}
         className="w-full py-3 border border-dashed border-indigo-300 text-sm text-indigo-600 font-medium rounded-xl hover:bg-indigo-50/50 flex items-center justify-center gap-2 btn-hover-transition"
       >
-        <Plus size={16} /> {t.addRoutine}
+        <LuPlus size={16} /> {t.addRoutine}
       </button>
     </div>
   );

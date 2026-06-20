@@ -3,7 +3,7 @@
 import React from "react";
 import { MonthlyProjection, FinancialState } from "../types/finance";
 import { Language, translations } from "../utils/translations";
-import { CheckCircle2, CalendarOff } from "lucide-react";
+import { LuCircleCheck, LuCalendarOff } from "react-icons/lu";
 
 interface Props {
   projections: MonthlyProjection[];
@@ -55,7 +55,7 @@ export default function StatusDetails({ projections, state, lang }: Props) {
         {lunasItems.map((item, idx) => (
           <div key={`lunas-${idx}`} className="flex items-center justify-between p-3 bg-brand-bgLight/30 border border-brand-light/20 rounded-xl">
             <div className="flex items-center gap-2.5">
-              <CheckCircle2 size={16} className="text-brand-dark flex-shrink-0" />
+              <LuCircleCheck size={16} className="text-brand-dark flex-shrink-0" />
               <span className="text-xs font-medium text-slate-700">
                 {item.name} {t.paidOffIn} {item.monthName} {item.year}
               </span>
@@ -70,7 +70,7 @@ export default function StatusDetails({ projections, state, lang }: Props) {
         {berakhirIncomes.map((item, idx) => (
           <div key={`ended-${idx}`} className="flex items-center justify-between p-3 bg-warning-light border border-warning/20 rounded-xl">
             <div className="flex items-center gap-2.5">
-              <CalendarOff size={16} className="text-warning-dark flex-shrink-0" />
+              <LuCalendarOff size={16} className="text-warning-dark flex-shrink-0" />
               <span className="text-xs font-medium text-slate-700">
                 {item.name} {t.endsIn} {item.monthName} {item.year}
               </span>
