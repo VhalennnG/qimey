@@ -1,8 +1,20 @@
 "use client";
 
 import React from "react";
-import { FinancialState, Income, Tabungan, ItemBerkala, PengeluaranRutin, PengeluaranSekaliBayar } from "../types/finance";
-import { Language, translations, INDONESIAN_MONTHS, ENGLISH_MONTHS } from "../utils/translations";
+import {
+  FinancialState,
+  Income,
+  Tabungan,
+  ItemBerkala,
+  PengeluaranRutin,
+  PengeluaranSekaliBayar,
+} from "../types/finance";
+import {
+  Language,
+  translations,
+  INDONESIAN_MONTHS,
+  ENGLISH_MONTHS,
+} from "../utils/translations";
 import IncomeSection from "./IncomeSection";
 import SavingsSection from "./SavingsSection";
 import DebtSection from "./DebtSection";
@@ -49,7 +61,7 @@ export default function FormContainer({
 }: Props) {
   const t = translations[lang];
   const monthsList = lang === "id" ? INDONESIAN_MONTHS : ENGLISH_MONTHS;
-  
+
   const handleIncomesChange = (incomes: Income[]) => {
     onChange({ ...state, incomes });
   };
@@ -66,7 +78,9 @@ export default function FormContainer({
     onChange({ ...state, pengeluaranRutin });
   };
 
-  const handleOneTimeChange = (pengeluaranSekaliBayar: PengeluaranSekaliBayar[]) => {
+  const handleOneTimeChange = (
+    pengeluaranSekaliBayar: PengeluaranSekaliBayar[],
+  ) => {
     onChange({ ...state, pengeluaranSekaliBayar });
   };
 
@@ -87,16 +101,18 @@ export default function FormContainer({
               {lang === "id" ? "Mata Uang Proyeksi" : "Projection Currency"}
             </h4>
             <p className="text-[11px] text-slate-400 mt-0.5">
-              {lang === "id" ? "Tuliskan simbol atau kode mata uang pilihan Anda (misal: Rp, USD, EUR, SGD)" : "Type your currency symbol or code (e.g., Rp, USD, EUR, SGD)"}
+              {lang === "id"
+                ? "Tuliskan simbol atau kode mata uang pilihan Anda (misal:IDR, USD, EUR, SGD)"
+                : "Type your currency symbol or code (e.g., IDR, USD, EUR, SGD)"}
             </p>
           </div>
-          
+
           <div className="w-full sm:w-48 relative">
             <input
               type="text"
               value={currency}
               onChange={(e) => onCurrencyChange(e.target.value)}
-              placeholder="Rp / USD / EUR"
+              placeholder="IDR / USD / EUR"
               className="w-full h-10 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 font-semibold"
             />
           </div>
@@ -116,29 +132,37 @@ export default function FormContainer({
               {t.projectionRangeSub}
             </p>
           </div>
-          
+
           <div className="flex items-center gap-3">
             <div>
-              <label className="block text-[10px] font-medium text-slate-400 mb-1">{t.endMonth}</label>
+              <label className="block text-[10px] font-medium text-slate-400 mb-1">
+                {t.endMonth}
+              </label>
               <select
                 value={endMonthIndex}
                 onChange={(e) => onEndMonthChange(Number(e.target.value))}
                 className="h-10 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 font-semibold"
               >
                 {monthsList.map((m, idx) => (
-                  <option key={idx} value={idx}>{m}</option>
+                  <option key={idx} value={idx}>
+                    {m}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-[10px] font-medium text-slate-400 mb-1">{t.endYear}</label>
+              <label className="block text-[10px] font-medium text-slate-400 mb-1">
+                {t.endYear}
+              </label>
               <select
                 value={endYear}
                 onChange={(e) => onEndYearChange(Number(e.target.value))}
                 className="h-10 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 font-semibold"
               >
                 {yearOptions.map((y) => (
-                  <option key={y} value={y}>{y}</option>
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
                 ))}
               </select>
             </div>
@@ -147,18 +171,28 @@ export default function FormContainer({
       </div>
 
       {/* Step 1: Income Card */}
-      <section id="section-income" className="scroll-mt-10 bg-white border border-slate-200 shadow-sm rounded-2xl p-6 md:p-8">
+      <section
+        id="section-income"
+        className="scroll-mt-10 bg-white border border-slate-200 shadow-sm rounded-2xl p-6 md:p-8"
+      >
         <IncomeSection
           incomes={state.incomes}
           onChange={handleIncomesChange}
           errors={errors}
           lang={lang}
           currency={currency}
+          startMonthIndex={startMonthIndex}
+          currentYear={currentYear}
+          endMonthIndex={endMonthIndex}
+          endYear={endYear}
         />
       </section>
 
       {/* Step 2: Savings Card */}
-      <section id="section-savings" className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 md:p-8">
+      <section
+        id="section-savings"
+        className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 md:p-8"
+      >
         <SavingsSection
           tabungan={state.tabungan}
           onChange={handleTabunganChange}
@@ -168,17 +202,27 @@ export default function FormContainer({
       </section>
 
       {/* Step 3: Debt Card */}
-      <section id="section-debt" className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 md:p-8">
+      <section
+        id="section-debt"
+        className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 md:p-8"
+      >
         <DebtSection
           debts={state.cicilanUtang}
           onChange={handleCicilanChange}
           lang={lang}
           currency={currency}
+          startMonthIndex={startMonthIndex}
+          currentYear={currentYear}
+          endMonthIndex={endMonthIndex}
+          endYear={endYear}
         />
       </section>
 
       {/* Step 4: Routine Expenses Card */}
-      <section id="section-routine" className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 md:p-8">
+      <section
+        id="section-routine"
+        className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 md:p-8"
+      >
         <RoutineSection
           expenses={state.pengeluaranRutin}
           onChange={handleRoutineChange}
@@ -188,7 +232,10 @@ export default function FormContainer({
       </section>
 
       {/* Step 5: One-Time Expenses Card */}
-      <section id="section-onetime" className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 md:p-8">
+      <section
+        id="section-onetime"
+        className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 md:p-8"
+      >
         <OneTimeSection
           expenses={state.pengeluaranSekaliBayar}
           onChange={handleOneTimeChange}
@@ -209,7 +256,7 @@ export default function FormContainer({
             <LuSave size={13} className="text-slate-400" />
             <span>{t.saveAuto}</span>
           </div>
-          
+
           <div className="flex items-center gap-3 w-full md:w-auto justify-end">
             <button
               type="button"
@@ -219,7 +266,7 @@ export default function FormContainer({
               <LuRotateCcw size={15} />
               <span>{t.resetBtn}</span>
             </button>
-            
+
             <button
               type="button"
               onClick={onSubmit}
@@ -227,15 +274,15 @@ export default function FormContainer({
                 !hasCalculated
                   ? "bg-brand hover:bg-brand-dark text-white shadow-brand/10 hover:shadow-brand/20"
                   : isDirty
-                  ? "bg-warning hover:bg-warning-dark text-white shadow-warning/10 hover:shadow-warning/20"
-                  : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/10 hover:shadow-emerald-500/20"
+                    ? "bg-warning hover:bg-warning-dark text-white shadow-warning/10 hover:shadow-warning/20"
+                    : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/10 hover:shadow-emerald-500/20"
               }`}
             >
               {!hasCalculated
                 ? t.calculateBtn
                 : isDirty
-                ? t.updateBtn
-                : t.upToDateBtn}
+                  ? t.updateBtn
+                  : t.upToDateBtn}
             </button>
           </div>
         </div>

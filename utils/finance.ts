@@ -1,10 +1,15 @@
-import { FinancialState, Income, ItemBerkala, MonthlyProjection, Periode } from "../types/finance";
+import { FinancialState, Income, ItemBerkala, MonthlyProjection, Periode, BulanTahun } from "../types/finance";
 
 // Month abbreviations in Indonesian
 export const INDONESIAN_MONTHS = [
   "Jan", "Feb", "Mar", "Apr", "Mei", "Jun", 
   "Jul", "Agu", "Sep", "Okt", "Nov", "Des"
 ];
+
+/** Convert a BulanTahun to an absolute month index for comparison */
+function toAbsoluteMonth(bt: BulanTahun): number {
+  return bt.tahun * 12 + bt.bulan;
+}
 
 /**
  * Converts any periodic nominal amount into its monthly equivalent
@@ -80,6 +85,7 @@ export function calculateProjection(
     const calendarMonthIndex = (startMonthIndex + m) % 12;
     const calendarYear = startYear + Math.floor((startMonthIndex + m) / 12);
     const bulanNama = INDONESIAN_MONTHS[calendarMonthIndex];
+    const currentAbsMonth = calendarYear * 12 + calendarMonthIndex;
     
     // 1. Pendapatan (PRD 8.3 & 8.4)
     let totalPendapatanKotor = 0;
@@ -87,8 +93,10 @@ export function calculateProjection(
     const berakhirIncomeIds: string[] = [];
     
     state.incomes.forEach((income) => {
-      // isActive(income, m)
-      const isActive = income.masaBulan === null || m < income.masaBulan;
+      const startAbs = toAbsoluteMonth(income.mulaiBulan);
+      const endAbs = income.selesaiBulan ? toAbsoluteMonth(income.selesaiBulan) : Infinity;
+      const isActive = currentAbsMonth >= startAbs && currentAbsMonth <= endAbs;
+      
       if (isActive) {
         const kotor = toMonthly(income.nominal, income.periode);
         const pajak = calculateTaxForIncome(income);
@@ -96,8 +104,8 @@ export function calculateProjection(
         totalPajakPotongan += pajak;
       }
       
-      // Check if it ends in this specific month (last active month is m === masaBulan - 1)
-      if (income.masaBulan !== null && m === income.masaBulan - 1) {
+      // Check if it ends in this specific month
+      if (income.selesaiBulan && currentAbsMonth === endAbs) {
         berakhirIncomeIds.push(income.id);
       }
     });
@@ -109,14 +117,16 @@ export function calculateProjection(
     const lunasCicilanIds: string[] = [];
     
     state.cicilanUtang.forEach((debt) => {
-      // isActive(debt, m)
-      const isActive = m < debt.masaBulan;
+      const startAbs = toAbsoluteMonth(debt.mulaiBulan);
+      const endAbs = toAbsoluteMonth(debt.selesaiBulan);
+      const isActive = currentAbsMonth >= startAbs && currentAbsMonth <= endAbs;
+      
       if (isActive) {
         totalCicilanUtang += toMonthly(debt.nominal, debt.periode);
       }
       
-      // Check if it is paid off in this month (last active month is m === masaBulan - 1)
-      if (m === debt.masaBulan - 1) {
+      // Check if it is paid off in this month
+      if (currentAbsMonth === endAbs) {
         lunasCicilanIds.push(debt.id);
       }
     });

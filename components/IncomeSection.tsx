@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { Income, Pajak, Periode, JenisPotongan } from "../types/finance";
+import { Income, Pajak, Periode, JenisPotongan, BulanTahun } from "../types/finance";
 import { formatInputNumber, parseInputNumber, getCurrencyConfig } from "../utils/format";
 import { Language, translations } from "../utils/translations";
 import { LuTrash2, LuPlus, LuInfo, LuChevronDown, LuChevronUp, LuReceipt, LuWallet } from "react-icons/lu";
+import MonthYearPicker from "./MonthYearPicker";
 
 interface Props {
   incomes: Income[];
@@ -12,12 +13,19 @@ interface Props {
   errors: Record<string, string>;
   lang: Language;
   currency: string;
+  startMonthIndex: number;
+  currentYear: number;
+  endMonthIndex: number;
+  endYear: number;
 }
 
-export default function IncomeSection({ incomes, onChange, errors, lang, currency }: Props) {
+export default function IncomeSection({ incomes, onChange, errors, lang, currency, startMonthIndex, currentYear, endMonthIndex, endYear }: Props) {
   const [expandedTaxId, setExpandedTaxId] = useState<string | null>(null);
   const t = translations[lang];
   const curConfig = getCurrencyConfig(currency);
+
+  const projStart: BulanTahun = { bulan: startMonthIndex, tahun: currentYear };
+  const projEnd: BulanTahun = { bulan: endMonthIndex, tahun: endYear };
 
   const addIncome = () => {
     const newIncome: Income = {
@@ -25,7 +33,8 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
       nama: "",
       nominal: 0,
       periode: "bulanan",
-      masaBulan: null,
+      mulaiBulan: { bulan: startMonthIndex, tahun: currentYear },
+      selesaiBulan: null,
       pajak: [],
     };
     onChange([...incomes, newIncome]);
@@ -113,8 +122,8 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
                 </button>
               </div>
 
-              {/* Form Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              {/* Name & Period Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">{t.incomeNameLabel}</label>
                   <input
@@ -147,24 +156,60 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
                     <option value="tahunan">{t.yearly}</option>
                   </select>
                 </div>
+              </div>
+
+              {/* Date Picker Row: Start & End */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">{t.startFrom}</label>
+                  <MonthYearPicker
+                    value={income.mulaiBulan}
+                    onChange={(val) => {
+                      if (val) {
+                        // Ensure start doesn't exceed end
+                        const newFields: Partial<Income> = { mulaiBulan: val };
+                        if (income.selesaiBulan) {
+                          const startAbs = val.tahun * 12 + val.bulan;
+                          const endAbs = income.selesaiBulan.tahun * 12 + income.selesaiBulan.bulan;
+                          if (startAbs > endAbs) {
+                            newFields.selesaiBulan = val;
+                          }
+                        }
+                        updateIncome(income.id, newFields);
+                      }
+                    }}
+                    minDate={projStart}
+                    maxDate={projEnd}
+                    lang={lang}
+                    accentColor="brand"
+                  />
+                </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">{t.duration}</label>
-                  <select
-                    value={income.masaBulan === null ? "null" : String(income.masaBulan)}
-                    onChange={(e) => {
-                      const val = e.target.value === "null" ? null : Number(e.target.value);
-                      updateIncome(income.id, { masaBulan: val });
+                  <label className="block text-xs font-medium text-slate-500 mb-1">{t.until}</label>
+                  <MonthYearPicker
+                    value={income.selesaiBulan}
+                    onChange={(val) => {
+                      if (val) {
+                        // Ensure end doesn't precede start
+                        const endAbs = val.tahun * 12 + val.bulan;
+                        const startAbs = income.mulaiBulan.tahun * 12 + income.mulaiBulan.bulan;
+                        if (endAbs < startAbs) {
+                          updateIncome(income.id, { selesaiBulan: income.mulaiBulan });
+                        } else {
+                          updateIncome(income.id, { selesaiBulan: val });
+                        }
+                      } else {
+                        updateIncome(income.id, { selesaiBulan: null });
+                      }
                     }}
-                    className="w-full h-10 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10"
-                  >
-                    <option value="null">{t.unlimited}</option>
-                    {Array.from({ length: 12 }, (_, i) => (
-                      <option key={i + 1} value={String(i + 1)}>
-                        {i + 1} {t.months}
-                      </option>
-                    ))}
-                  </select>
+                    minDate={income.mulaiBulan}
+                    maxDate={projEnd}
+                    allowNull={true}
+                    nullLabel={t.noLimit}
+                    lang={lang}
+                    accentColor="brand"
+                  />
                 </div>
               </div>
 

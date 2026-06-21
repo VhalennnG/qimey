@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ItemBerkala, Periode } from "../types/finance";
+import { ItemBerkala, Periode, BulanTahun } from "../types/finance";
 import {
   formatInputNumber,
   parseInputNumber,
@@ -9,12 +9,17 @@ import {
 } from "../utils/format";
 import { Language, translations } from "../utils/translations";
 import { LuTrash2, LuPlus, LuInfo, LuCreditCard } from "react-icons/lu";
+import MonthYearPicker from "./MonthYearPicker";
 
 interface Props {
   debts: ItemBerkala[];
   onChange: (debts: ItemBerkala[]) => void;
   lang: Language;
   currency: string;
+  startMonthIndex: number;
+  currentYear: number;
+  endMonthIndex: number;
+  endYear: number;
 }
 
 export default function DebtSection({
@@ -22,9 +27,16 @@ export default function DebtSection({
   onChange,
   lang,
   currency,
+  startMonthIndex,
+  currentYear,
+  endMonthIndex,
+  endYear,
 }: Props) {
   const t = translations[lang];
   const curConfig = getCurrencyConfig(currency);
+
+  const projStart: BulanTahun = { bulan: startMonthIndex, tahun: currentYear };
+  const projEnd: BulanTahun = { bulan: endMonthIndex, tahun: endYear };
 
   const addDebt = () => {
     const newDebt: ItemBerkala = {
@@ -32,9 +44,9 @@ export default function DebtSection({
       nama: "",
       nominal: 0,
       periode: "bulanan",
-      currentMasa: 1, // mapping support if needed
-      masaBulan: 1,
-    } as any;
+      mulaiBulan: { bulan: startMonthIndex, tahun: currentYear },
+      selesaiBulan: { bulan: startMonthIndex, tahun: currentYear },
+    };
     onChange([...debts, newDebt]);
   };
 
@@ -86,8 +98,8 @@ export default function DebtSection({
               </button>
             </div>
 
-            {/* Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Name & Period Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-xs font-medium text-slate-500 mb-1">
                   {t.debtName}
@@ -130,34 +142,57 @@ export default function DebtSection({
                   <option value="tahunan">{t.yearly}</option>
                 </select>
               </div>
+            </div>
+
+            {/* Date Picker Row: Start & End */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">{t.startFrom}</label>
+                <MonthYearPicker
+                  value={debt.mulaiBulan}
+                  onChange={(val) => {
+                    if (val) {
+                      const newFields: Partial<ItemBerkala> = { mulaiBulan: val };
+                      const startAbs = val.tahun * 12 + val.bulan;
+                      const endAbs = debt.selesaiBulan.tahun * 12 + debt.selesaiBulan.bulan;
+                      if (startAbs > endAbs) {
+                        newFields.selesaiBulan = val;
+                      }
+                      updateDebt(debt.id, newFields);
+                    }
+                  }}
+                  minDate={projStart}
+                  maxDate={projEnd}
+                  lang={lang}
+                  accentColor="warning"
+                />
+              </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-500 mb-1">
-                  {t.debtDuration}
-                </label>
-                <input
-                  type="text"
-                  value={debt.masaBulan || ""}
-                  placeholder={
-                    lang === "id"
-                      ? "Jumlah bulan, misal: 12"
-                      : "Number of months, e.g. 12"
-                  }
-                  onChange={(e) => {
-                    const parsed = Number(
-                      e.target.value.replace(/[^0-9]/g, ""),
-                    );
-                    updateDebt(debt.id, {
-                      masaBulan: isNaN(parsed) || parsed < 1 ? 1 : parsed,
-                    });
+                <label className="block text-xs font-medium text-slate-500 mb-1">{t.until}</label>
+                <MonthYearPicker
+                  value={debt.selesaiBulan}
+                  onChange={(val) => {
+                    if (val) {
+                      const endAbs = val.tahun * 12 + val.bulan;
+                      const startAbs = debt.mulaiBulan.tahun * 12 + debt.mulaiBulan.bulan;
+                      if (endAbs < startAbs) {
+                        updateDebt(debt.id, { selesaiBulan: debt.mulaiBulan });
+                      } else {
+                        updateDebt(debt.id, { selesaiBulan: val });
+                      }
+                    }
                   }}
-                  className="w-full h-10 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-warning focus:ring-2 focus:ring-warning/10"
+                  minDate={debt.mulaiBulan}
+                  maxDate={projEnd}
+                  lang={lang}
+                  accentColor="warning"
                 />
               </div>
             </div>
 
             {/* Nominal */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium text-slate-500 mb-1">
                   {t.amount}

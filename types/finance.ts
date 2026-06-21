@@ -8,12 +8,18 @@ export interface Pajak {
   nilai: number; // Persen (0-100) atau nominal
 }
 
+export interface BulanTahun {
+  bulan: number; // 0-11
+  tahun: number; // e.g. 2026
+}
+
 export interface Income {
   id: string;
   nama: string;
   nominal: number;
   periode: Periode;
-  masaBulan: number | null; // null = tanpa batas
+  mulaiBulan: BulanTahun;
+  selesaiBulan: BulanTahun | null; // null = tanpa batas
   pajak: Pajak[];
 }
 
@@ -28,7 +34,8 @@ export interface ItemBerkala {
   nama: string;
   nominal: number;
   periode: Periode;
-  masaBulan: number; // Tenor dalam bulan (wajib)
+  mulaiBulan: BulanTahun;
+  selesaiBulan: BulanTahun; // wajib diisi
 }
 
 export interface PengeluaranRutin {

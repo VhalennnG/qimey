@@ -14,7 +14,7 @@ export const CURRENCIES: Record<string, CurrencyConfig> = {
 /**
  * Dynamically resolves currency configuration based on user input
  */
-export function getCurrencyConfig(currency: string = "IDR"): CurrencyConfig {
+export function getCurrencyConfig(currency: string = ""): CurrencyConfig {
   if (!currency) {
     return { code: "", symbol: "", locale: "id-ID" };
   }
@@ -62,7 +62,7 @@ export function getCurrencyConfig(currency: string = "IDR"): CurrencyConfig {
 /**
  * Formats a number to full currency representation based on selected currency
  */
-export function formatCurrency(val: number, currency: string = "IDR"): string {
+export function formatCurrency(val: number, currency: string = ""): string {
   const config = getCurrencyConfig(currency);
   const isNegative = val < 0;
   const absVal = Math.abs(val);
@@ -75,40 +75,43 @@ export function formatCurrency(val: number, currency: string = "IDR"): string {
     maximumFractionDigits: fractionDigits,
   }).format(absVal);
   
-  return `${isNegative ? "-" : ""}${config.symbol} ${formatted}`;
+  const prefix = config.symbol ? `${config.symbol} ` : "";
+  return `${isNegative ? "-" : ""}${prefix}${formatted}`;
 }
 
 /**
  * Formats a number as a human-readable summary (e.g. 56,8 jt for IDR, or $56.8k for USD)
  */
-export function formatCurrencySummary(val: number, currency: string = "IDR"): string {
+export function formatCurrencySummary(val: number, currency: string = ""): string {
   const config = getCurrencyConfig(currency);
   const isNegative = val < 0;
   const absVal = Math.abs(val);
   
   const isIdrStyle = config.locale === "id-ID";
+  const prefix = config.symbol ? `${config.symbol} ` : "";
+  const prefixNoSpace = config.symbol || "";
   
   if (isIdrStyle) {
     if (absVal >= 1000000) {
       const millions = absVal / 1000000;
       const formatted = millions % 1 === 0 ? millions.toFixed(0) : millions.toFixed(1);
-      return `${isNegative ? "-" : ""}${config.symbol} ${formatted.replace(".", ",")} jt`;
+      return `${isNegative ? "-" : ""}${prefix}${formatted.replace(".", ",")} jt`;
     }
-    return `${isNegative ? "-" : ""}${config.symbol} ${new Intl.NumberFormat("id-ID").format(absVal)}`;
+    return `${isNegative ? "-" : ""}${prefix}${new Intl.NumberFormat("id-ID").format(absVal)}`;
   } else {
     if (absVal >= 1000) {
       const thousands = absVal / 1000;
       const formatted = thousands % 1 === 0 ? thousands.toFixed(0) : thousands.toFixed(1);
-      return `${isNegative ? "-" : ""}${config.symbol}${formatted}k`;
+      return `${isNegative ? "-" : ""}${prefixNoSpace}${formatted}k`;
     }
-    return `${isNegative ? "-" : ""}${config.symbol}${new Intl.NumberFormat(config.locale).format(absVal)}`;
+    return `${isNegative ? "-" : ""}${prefixNoSpace}${new Intl.NumberFormat(config.locale).format(absVal)}`;
   }
 }
 
 /**
  * Formats a raw number string as the user types (adds thousands separators)
  */
-export function formatInputNumber(val: number | string, currency: string = "IDR"): string {
+export function formatInputNumber(val: number | string, currency: string = ""): string {
   if (val === undefined || val === null) return "";
   const clean = String(val).replace(/[^0-9]/g, "");
   if (!clean) return "";

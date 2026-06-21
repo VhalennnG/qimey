@@ -15,9 +15,10 @@ const DEFAULT_STATE: FinancialState = {
       nama: "",
       nominal: 0,
       periode: "bulanan",
-      masaBulan: null,
+      mulaiBulan: { bulan: 5, tahun: 2026 },
+      selesaiBulan: null,
       pajak: [],
-    } as any,
+    },
   ],
   tabungan: {
     saldoSaatIni: 0,
@@ -28,6 +29,62 @@ const DEFAULT_STATE: FinancialState = {
   pengeluaranSekaliBayar: [],
 };
 
+function migrateState(state: any, startM: number, startY: number): FinancialState {
+  if (!state) return state;
+  const migrated = { ...state };
+  
+  if (migrated.incomes && Array.isArray(migrated.incomes)) {
+    migrated.incomes = migrated.incomes.map((inc: any) => {
+      if (!inc.mulaiBulan) {
+        const legacyMasa = inc.masaBulan;
+        const mulaiBulan = { bulan: startM, tahun: startY };
+        let selesaiBulan = null;
+        
+        if (typeof legacyMasa === "number") {
+          const totalMonths = legacyMasa;
+          const endOffset = startM + totalMonths - 1;
+          selesaiBulan = {
+            bulan: endOffset % 12,
+            tahun: startY + Math.floor(endOffset / 12),
+          };
+        }
+        
+        const { masaBulan, ...rest } = inc;
+        return {
+          ...rest,
+          mulaiBulan,
+          selesaiBulan,
+        };
+      }
+      return inc;
+    });
+  }
+  
+  if (migrated.cicilanUtang && Array.isArray(migrated.cicilanUtang)) {
+    migrated.cicilanUtang = migrated.cicilanUtang.map((debt: any) => {
+      if (!debt.mulaiBulan) {
+        const legacyTenor = debt.tenor || 1;
+        const mulaiBulan = { bulan: startM, tahun: startY };
+        const endOffset = startM + legacyTenor - 1;
+        const selesaiBulan = {
+          bulan: endOffset % 12,
+          tahun: startY + Math.floor(endOffset / 12),
+        };
+        
+        const { tenor, ...rest } = debt;
+        return {
+          ...rest,
+          mulaiBulan,
+          selesaiBulan,
+        };
+      }
+      return debt;
+    });
+  }
+  
+  return migrated;
+}
+
 export default function MainPage() {
   const [financialState, setFinancialState] =
     useState<FinancialState>(DEFAULT_STATE);
@@ -36,7 +93,7 @@ export default function MainPage() {
   const [hasCalculated, setHasCalculated] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [lang, setLang] = useState<Language>("id");
-  const [currency, setCurrency] = useState<string>("Rp");
+  const [currency, setCurrency] = useState<string>("");
   const [lastCalculatedCurrency, setLastCalculatedCurrency] =
     useState<string>("");
 
@@ -53,8 +110,10 @@ export default function MainPage() {
   // 1. Initial Load (on mount)
   useEffect(() => {
     const d = new Date();
-    setStartMonthIndex(d.getMonth());
-    setCurrentYear(d.getFullYear());
+    const startM = d.getMonth();
+    const startY = d.getFullYear();
+    setStartMonthIndex(startM);
+    setCurrentYear(startY);
 
     const savedState = localStorage.getItem("fyvian_financial_state");
     const savedCalc = localStorage.getItem("fyvian_has_calculated");
@@ -69,11 +128,28 @@ export default function MainPage() {
     if (savedState) {
       try {
         const parsed = JSON.parse(savedState);
-        setFinancialState(parsed);
-        loadedState = parsed;
+        const migrated = migrateState(parsed, startM, startY);
+        setFinancialState(migrated);
+        loadedState = migrated;
       } catch (e) {
         console.error("Failed to load saved state", e);
       }
+    } else {
+      // Dynamic fallback
+      setFinancialState({
+        ...DEFAULT_STATE,
+        incomes: [
+          {
+            id: "default-income",
+            nama: "",
+            nominal: 0,
+            periode: "bulanan",
+            mulaiBulan: { bulan: startM, tahun: startY },
+            selesaiBulan: null,
+            pajak: [],
+          },
+        ],
+      });
     }
     
     let activeLang: Language = "id";
@@ -82,21 +158,22 @@ export default function MainPage() {
       activeLang = savedLang;
     }
     
-    let loadedCurrency = "Rp";
+    let loadedCurrency = "";
     if (savedCurrency) {
       setCurrency(savedCurrency);
       loadedCurrency = savedCurrency;
     } else {
-      const defaultCurr = activeLang === "en" ? "USD" : "Rp";
-      setCurrency(defaultCurr);
-      loadedCurrency = defaultCurr;
+      setCurrency("");
+      loadedCurrency = "";
     }
 
     if (savedCalc === "true") {
       setHasCalculated(true);
       if (savedLastState) {
         try {
-          setLastCalculatedState(JSON.parse(savedLastState));
+          const parsedLast = JSON.parse(savedLastState);
+          const migratedLast = migrateState(parsedLast, startM, startY);
+          setLastCalculatedState(migratedLast);
         } catch (e) {
           console.error("Failed to parse saved last state", e);
         }
@@ -116,7 +193,7 @@ export default function MainPage() {
     if (savedEndYear) {
       setEndYear(Number(savedEndYear));
     } else {
-      setEndYear(d.getFullYear());
+      setEndYear(startY);
     }
 
     setMounted(true);
@@ -160,22 +237,7 @@ export default function MainPage() {
   const toggleLanguage = () => {
     setLang((prevLang) => {
       const nextLang = prevLang === "id" ? "en" : "id";
-
-      // Update currency if it matches the default of the previous language
-      setCurrency((prevCurr) => {
-        const isPrevIdDefault =
-          prevLang === "id" && (prevCurr === "Rp" || prevCurr === "IDR");
-        const isPrevEnDefault = prevLang === "en" && prevCurr === "USD";
-
-        if (isPrevIdDefault) {
-          return "USD";
-        }
-        if (isPrevEnDefault) {
-          return "Rp";
-        }
-        return prevCurr;
-      });
-
+      // Currency is no longer affected by language toggle
       return nextLang;
     });
   };
@@ -431,6 +493,8 @@ export default function MainPage() {
             state={lastCalculatedState || financialState}
             startMonthIndex={startMonthIndex}
             currentYear={currentYear}
+            endMonthIndex={lastCalculatedEndMonth}
+            endYear={lastCalculatedEndYear}
             lang={lang}
             currency={lastCalculatedCurrency || currency}
           />

@@ -14,8 +14,8 @@ interface Props {
 export default function CompositionBreakdown({ projections, lang, currency }: Props) {
   const t = translations[lang];
 
-  const currentMonth = projections[0];
-  if (!currentMonth) return null;
+  const lastMonth = projections[projections.length - 1];
+  if (!lastMonth) return null;
 
   const {
     bulanNama,
@@ -26,7 +26,7 @@ export default function CompositionBreakdown({ projections, lang, currency }: Pr
     pengeluaranRutin,
     pengeluaranSekaliBayar,
     cashflow,
-  } = currentMonth;
+  } = lastMonth;
 
   const totalOutflow = pajakPotongan + cicilanUtang + pengeluaranRutin + pengeluaranSekaliBayar;
   const base = Math.max(pendapatanKotor, totalOutflow);

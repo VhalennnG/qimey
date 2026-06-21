@@ -17,6 +17,8 @@ interface Props {
   state: FinancialState;
   startMonthIndex: number;
   currentYear: number;
+  endMonthIndex: number;
+  endYear: number;
   lang: Language;
   currency: string;
 }
@@ -26,28 +28,36 @@ export default function Dashboard({
   state,
   startMonthIndex,
   currentYear,
+  endMonthIndex,
+  endYear,
   lang,
   currency,
 }: Props) {
   const t = translations[lang];
   const monthsList = lang === "id" ? INDONESIAN_MONTHS : ENGLISH_MONTHS;
 
-  const allIncomesFinite = state.incomes.length > 0 && state.incomes.every(inc => inc.masaBulan !== null);
+  const allIncomesFinite = state.incomes.length > 0 && state.incomes.every(inc => inc.selesaiBulan !== null);
   
   let showGlobalIncomeWarning = false;
   let lastActiveMonthName = "";
   let nextMonthName = "";
 
   if (allIncomesFinite) {
-    const totalMonthsInProjection = 12 - startMonthIndex;
-    const maxMasa = Math.max(...state.incomes.map(inc => inc.masaBulan || 0));
+    const projStartAbs = currentYear * 12 + startMonthIndex;
+    const projEndAbs = endYear * 12 + endMonthIndex;
+    const selesaiBulanList = state.incomes.map(inc => inc.selesaiBulan!);
+    const maxSelesaiAbs = Math.max(...selesaiBulanList.map(sb => sb.tahun * 12 + sb.bulan));
     
-    if (maxMasa < totalMonthsInProjection) {
+    if (maxSelesaiAbs < projEndAbs) {
       showGlobalIncomeWarning = true;
-      const lastActiveIndex = startMonthIndex + maxMasa - 1;
-      const nextIndex = startMonthIndex + maxMasa;
-      lastActiveMonthName = `${monthsList[lastActiveIndex]} ${currentYear}`;
-      nextMonthName = monthsList[nextIndex];
+      // Calculate calendar month/year for the last active month
+      const lastActiveCalMonth = maxSelesaiAbs % 12;
+      const lastActiveCalYear = Math.floor(maxSelesaiAbs / 12);
+      // Next month after last active
+      const nextCalMonth = (maxSelesaiAbs + 1) % 12;
+      const nextCalYear = Math.floor((maxSelesaiAbs + 1) / 12);
+      lastActiveMonthName = `${monthsList[lastActiveCalMonth]} ${lastActiveCalYear}`;
+      nextMonthName = `${monthsList[nextCalMonth]} ${nextCalYear}`;
     }
   }
 
