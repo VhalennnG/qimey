@@ -46,7 +46,7 @@ Before starting, make sure your device has the following installed:
 1. **Clone this project repository:**
 
    ```bash
-   git clone https://github.com/vhalen/imey.git
+   git clone https://github.com/vhalen/qimey.git
    cd qimey
    ```
 
