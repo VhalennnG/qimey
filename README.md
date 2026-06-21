@@ -6,7 +6,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/CSS-Tailwind%20CSS-38B2AC?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/license-MIT-green)](License.md)
 
-Qimey is a Next.js and Tailwind CSS-based personal financial calculator web application designed to provide a transparent and comprehensive monthly cashflow projection from the current month until December of the current year.
+Qimey is a personal financial planning and cashflow projection web application built with Next.js (App Router), TypeScript, and Tailwind CSS. It is designed to help individuals—such as contract employees, freelancers, or salaried workers—simulate their future financial health by calculating and visualizing cumulative cashflow projections over a customizable planning period.
 
 Many people struggle to estimate their remaining funds at the end of the year due to the complexity of calculating combinations of income with limited active periods, tax deductions per income item, debts with different tenors, and routine and incidental expenses. Qimey was created to solve this problem by visualizing all of this financial data in a single interactive dashboard without requiring account registration.
 
@@ -14,20 +14,21 @@ Many people struggle to estimate their remaining funds at the end of the year du
 
 ## ✨ Key Features
 
-- **Dynamic Monthly Cashflow Projection**: Automatically calculates and projects your financial balance cumulatively from the beginning of the current month to December.
-- **Multi-Income Management**: Supports adding multiple income sources (salary, side jobs, etc.) dynamically with independent periods (daily, weekly, monthly, yearly) and active durations.
-- **Independent Taxes & Deductions**: Configure tax deductions (percentage or fixed nominal) that are directly bound to and calculated separately for each income item.
-- **Tenor-Based Debt & Loan Simulation**: Input debts/loans with nominal amounts and active tenors (start month to end month) which are calculated precisely and automatically paid off in the dashboard according to the schedule.
-- **Routine & Incidental Expense Tracking**: Flexibly enter your routine expenses (daily, weekly, or monthly) and planned one-time (incidental) expenses for specific months.
-- **Interactive Analysis Dashboard & Charts**:
-  - **Metrics Summary**: Total net income, total tax, total debt, and the debt-to-net-income ratio for the current month.
-  - **Projection Chart**: Interactive bar chart using Recharts visualizing monthly balance fluctuations.
-  - **Composition Breakdown**: Stacked bar chart to see the breakdown of current month's expenses.
-  - **Payoff Status**: Detailed info and badges indicating when a debt is paid off or when an income source ends.
-- **Early Warning System**:
-  - Red warning banner on months with a projected negative balance (deficit).
-  - Global warning banner if all of your income sources are projected to end before December.
-- **Local Security & Privacy**: No login or external database. All sensitive financial data is securely stored in your browser via `localStorage` with safe Next.js hydration handling.
+- **Flexible Planning Periods**: Set a custom planning range spanning multiple months or years. The projection automatically adjusts, showing year-boundary separators in tables and formatting chart axis labels.
+- **Dynamic Cashflow & Balance Projections**: Automatically calculates and charts your cumulative balance from the current month through your selected end date using Recharts.
+- **Independent Taxes per Income**: Add tax or fee deductions (as a percentage or fixed amount) directly bound to each specific income source.
+- **Tenor-Based Debt & Loan Simulation**: Track credit cards, loans, and installments with a start month and end month. The engine simulates these obligations and flags their payoff status automatically.
+- **Multi-Currency Support**: Input any currency symbol (predefined list includes `Rp`, `$`, `€`, `S$`, `£`, `¥`, `₩`, etc.) or use a custom one. Numbers format automatically as you type with the appropriate local decimal and thousands separators.
+- **Advanced Export Formats**: Export your planning reports to:
+  - **Excel (.xlsx)** spreadsheets.
+  - **CSV (.csv)** files.
+  - **PDF (.pdf)** landscape reports featuring formatted auto-tables.
+- **Bilingual Interface**: Seamless translation switching between Indonesian (🇮🇩) and English (🇬🇧) via a custom gooey toggle switch.
+- **State Persistence & Safekeeping**: Form entries are saved in the browser's `localStorage` automatically (safeguarded against SSR hydration mismatches).
+- **Edit & Recalculate Workflows**: Implements a "dirty state" check, prompting you to recalculate only when you choose. This avoids jarring screen jumps while editing entries.
+- **Deficit & Expiry Warnings**:
+  - Highlights deficit months in red in the report and chart.
+  - Displays a global alert banner if all income sources end before the planning period concludes.
 
 ---
 
@@ -36,6 +37,7 @@ Many people struggle to estimate their remaining funds at the end of the year du
 ### Prerequisites
 
 Before starting, make sure your device has the following installed:
+
 - **Node.js** (version 18.x or newer)
 - **npm** or **yarn**
 
@@ -64,12 +66,18 @@ Before starting, make sure your device has the following installed:
 
 ## 🚀 How to Use
 
-1. **Input Income**: Enter at least one income source with a nominal value > 0. Click the "Ada potongan pajak?" (Is there a tax deduction?) button on the income card to configure specific deductions for that income.
-2. **Current Savings**: Enter your current savings balance and choose whether to include or exclude it in the projected balance accumulation.
-3. **Debt & Loans**: Add ongoing debts or loans, enter the nominal value, and select the tenor's end month for automatic payoff simulation.
-4. **Routine Expenses**: Add your daily, weekly, or monthly routine expenses.
-5. **One-Time Expenses**: Add planned major incidental expenses and select the specific month of occurrence.
-6. **Calculate Projection**: Click the **"Hitung Proyeksi"** (Calculate Projection) button at the bottom of the form. The page will automatically scroll down to the interactive analysis dashboard showing your financial summary.
+1. **Set Currency & Range**: Select your preferred currency and choose the custom planning start and end months/years in the **Planning Period** section.
+2. **Input Income**: Add your income source(s). Click "+ Add" under the tax section on the card to apply specific percentage or nominal deductions.
+3. **Current Savings**: Input your current savings balance and toggle whether to use it as the starting balance for your projection.
+4. **Debts & Expenses**:
+   - Add **Installments & Debts** and select their starting and ending month/year.
+   - Enter **Routine Expenses** (daily, weekly, or monthly).
+   - Enter **One-Time Expenses** and select the month they will occur.
+5. **Calculate Cashflow**: Click **"Calculate Cash Flow ↗"**. The page will smoothly scroll to the dashboard.
+6. **Analyze and Export**:
+   - Filter the chart zoom (3 Months, 6 Months, 1 Year, or All).
+   - Review payoff details and warnings.
+   - Open the **Export** dropdown on the table to download the report as PDF, Excel, or CSV.
 
 ---
 
@@ -77,17 +85,18 @@ Before starting, make sure your device has the following installed:
 
 ### Environment Configuration
 
-This project runs entirely on the client side. No special environment variables (`.env`) or external databases are required to run it. Your data is stored in the browser using the key `fyvian_financial_state`.
+This project is completely client-side. No environment variables (`.env`) or databases are required. Your state is serialized to JSON and persisted locally under the key `fyvian_financial_state`.
 
 ### Financial Formula Assumptions (`toMonthly`)
 
-To keep calculations easy to understand and consistent, the projection applies the following financial math assumptions:
-- **Uniform Average Calendar**: Non-monthly period conversions use a uniform average:
+The mathematical engine in `utils/finance.ts` uses the following rules:
+
+- **Uniform Average Calendar**: Period conversions use uniform averages for calendar consistency:
   - Daily: `Nominal x 30`
   - Weekly: `Nominal x 4.33` (52 weeks ÷ 12 months)
   - Monthly: `Nominal x 1`
   - Yearly: `Nominal ÷ 12`
-- **Full Current Month**: The current month in which the application is opened is calculated as a full month without pro-rating the remaining days.
+- **Full Current Month**: The current month is calculated as a full month (no daily pro-rating) to keep predictions straightforward.
 
 ---
 
