@@ -1,10 +1,28 @@
 "use client";
 
 import React, { useState } from "react";
-import { Income, Pajak, Periode, JenisPotongan, BulanTahun } from "../types/finance";
-import { formatInputNumber, parseInputNumber, getCurrencyConfig } from "../utils/format";
+import {
+  Income,
+  Pajak,
+  Periode,
+  JenisPotongan,
+  BulanTahun,
+} from "../types/finance";
+import {
+  formatInputNumber,
+  parseInputNumber,
+  getCurrencyConfig,
+} from "../utils/format";
 import { Language, translations } from "../utils/translations";
-import { LuTrash2, LuPlus, LuInfo, LuChevronDown, LuChevronUp, LuReceipt, LuWallet } from "react-icons/lu";
+import {
+  LuTrash2,
+  LuPlus,
+  LuInfo,
+  LuChevronDown,
+  LuChevronUp,
+  LuReceipt,
+  LuWallet,
+} from "react-icons/lu";
 import MonthYearPicker from "./MonthYearPicker";
 
 interface Props {
@@ -19,7 +37,17 @@ interface Props {
   endYear: number;
 }
 
-export default function IncomeSection({ incomes, onChange, errors, lang, currency, startMonthIndex, currentYear, endMonthIndex, endYear }: Props) {
+export default function IncomeSection({
+  incomes,
+  onChange,
+  errors,
+  lang,
+  currency,
+  startMonthIndex,
+  currentYear,
+  endMonthIndex,
+  endYear,
+}: Props) {
   const [expandedTaxId, setExpandedTaxId] = useState<string | null>(null);
   const t = translations[lang];
   const curConfig = getCurrencyConfig(currency);
@@ -46,7 +74,7 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
 
   const updateIncome = (id: string, fields: Partial<Income>) => {
     onChange(
-      incomes.map((item) => (item.id === id ? { ...item, ...fields } : item))
+      incomes.map((item) => (item.id === id ? { ...item, ...fields } : item)),
     );
   };
 
@@ -70,11 +98,17 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
     });
   };
 
-  const updateTax = (incomeId: string, taxId: string, fields: Partial<Pajak>) => {
+  const updateTax = (
+    incomeId: string,
+    taxId: string,
+    fields: Partial<Pajak>,
+  ) => {
     const income = incomes.find((item) => item.id === incomeId);
     if (!income) return;
     updateIncome(incomeId, {
-      pajak: income.pajak.map((tax) => (tax.id === taxId ? { ...tax, ...fields } : tax)),
+      pajak: income.pajak.map((tax) =>
+        tax.id === taxId ? { ...tax, ...fields } : tax,
+      ),
     });
   };
 
@@ -100,10 +134,12 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
         {incomes.map((income, index) => {
           const hasError = errors[income.id] !== undefined;
           return (
-            <div 
-              key={income.id} 
+            <div
+              key={income.id}
               className={`p-5 rounded-xl border border-brand-light/30 bg-white shadow-sm relative overflow-hidden transition-all duration-200 ${
-                hasError ? "border-danger ring-1 ring-danger/50" : "hover:border-brand/40"
+                hasError
+                  ? "border-danger ring-1 ring-danger/50"
+                  : "hover:border-brand/40"
               }`}
               style={{ borderLeft: "4px solid #1d9e75" }}
             >
@@ -125,12 +161,20 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
               {/* Name & Period Row */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">{t.incomeNameLabel}</label>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">
+                    {t.incomeNameLabel}
+                  </label>
                   <input
                     type="text"
                     value={income.nama}
-                    placeholder={lang === "id" ? "Misal: Gaji Pokok, Freelance" : "e.g. Base Salary, Freelance"}
-                    onChange={(e) => updateIncome(income.id, { nama: e.target.value })}
+                    placeholder={
+                      lang === "id"
+                        ? "Misal: Gaji Pokok, Freelance"
+                        : "e.g. Base Salary, Freelance"
+                    }
+                    onChange={(e) =>
+                      updateIncome(income.id, { nama: e.target.value })
+                    }
                     className="w-full h-10 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10"
                   />
                 </div>
@@ -147,7 +191,11 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
                   </label>
                   <select
                     value={income.periode}
-                    onChange={(e) => updateIncome(income.id, { periode: e.target.value as Periode })}
+                    onChange={(e) =>
+                      updateIncome(income.id, {
+                        periode: e.target.value as Periode,
+                      })
+                    }
                     className="w-full h-10 px-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10"
                   >
                     <option value="bulanan">{t.monthly}</option>
@@ -161,7 +209,9 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
               {/* Date Picker Row: Start & End */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">{t.startFrom}</label>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">
+                    {t.startFrom}
+                  </label>
                   <MonthYearPicker
                     value={income.mulaiBulan}
                     onChange={(val) => {
@@ -170,7 +220,9 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
                         const newFields: Partial<Income> = { mulaiBulan: val };
                         if (income.selesaiBulan) {
                           const startAbs = val.tahun * 12 + val.bulan;
-                          const endAbs = income.selesaiBulan.tahun * 12 + income.selesaiBulan.bulan;
+                          const endAbs =
+                            income.selesaiBulan.tahun * 12 +
+                            income.selesaiBulan.bulan;
                           if (startAbs > endAbs) {
                             newFields.selesaiBulan = val;
                           }
@@ -186,16 +238,22 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">{t.until}</label>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">
+                    {t.until}
+                  </label>
                   <MonthYearPicker
                     value={income.selesaiBulan}
                     onChange={(val) => {
                       if (val) {
                         // Ensure end doesn't precede start
                         const endAbs = val.tahun * 12 + val.bulan;
-                        const startAbs = income.mulaiBulan.tahun * 12 + income.mulaiBulan.bulan;
+                        const startAbs =
+                          income.mulaiBulan.tahun * 12 +
+                          income.mulaiBulan.bulan;
                         if (endAbs < startAbs) {
-                          updateIncome(income.id, { selesaiBulan: income.mulaiBulan });
+                          updateIncome(income.id, {
+                            selesaiBulan: income.mulaiBulan,
+                          });
                         } else {
                           updateIncome(income.id, { selesaiBulan: val });
                         }
@@ -216,14 +274,22 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
               {/* Nominal Row */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">{t.amount}</label>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">
+                    {t.amount}
+                  </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-medium">{curConfig.symbol}</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-medium">
+                      {curConfig.symbol}
+                    </span>
                     <input
                       type="text"
                       value={formatInputNumber(income.nominal, currency)}
                       placeholder="0"
-                      onChange={(e) => updateIncome(income.id, { nominal: parseInputNumber(e.target.value) })}
+                      onChange={(e) =>
+                        updateIncome(income.id, {
+                          nominal: parseInputNumber(e.target.value),
+                        })
+                      }
                       className="w-full h-10 pl-10 pr-3 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 font-medium"
                     />
                   </div>
@@ -249,18 +315,24 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
                       <LuReceipt size={14} />
                     </div>
                     <span className="text-xs font-medium text-slate-700">
-                      {income.pajak.length > 0 
-                        ? `${income.pajak.length} ${t.taxCount}` 
+                      {income.pajak.length > 0
+                        ? `${income.pajak.length} ${t.taxCount}`
                         : t.taxToggle}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-brand-dark hover:underline">
-                      {expandedTaxId === income.id 
-                        ? (lang === "id" ? "Sembunyikan" : "Hide") 
+                      {expandedTaxId === income.id
+                        ? lang === "id"
+                          ? "Sembunyikan"
+                          : "Hide"
                         : `${t.changeTax} / ${t.addTaxShort}`}
                     </span>
-                    {expandedTaxId === income.id ? <LuChevronUp size={14} className="text-slate-400" /> : <LuChevronDown size={14} className="text-slate-400" />}
+                    {expandedTaxId === income.id ? (
+                      <LuChevronUp size={14} className="text-slate-400" />
+                    ) : (
+                      <LuChevronDown size={14} className="text-slate-400" />
+                    )}
                   </div>
                 </button>
 
@@ -277,14 +349,26 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
                             <input
                               type="text"
                               value={tax.nama}
-                              placeholder={lang === "id" ? "Nama Potongan (misal: PPh 21)" : "Deduction Name (e.g. Tax)"}
-                              onChange={(e) => updateTax(income.id, tax.id, { nama: e.target.value })}
+                              placeholder={
+                                lang === "id"
+                                  ? "Nama Potongan (misal: PPh 21)"
+                                  : "Deduction Name (e.g. Tax)"
+                              }
+                              onChange={(e) =>
+                                updateTax(income.id, tax.id, {
+                                  nama: e.target.value,
+                                })
+                              }
                               className="flex-[2] h-9 px-2 border border-slate-200 rounded-md text-xs bg-white focus:outline-none focus:border-brand"
                             />
-                            
+
                             <select
                               value={tax.jenis}
-                              onChange={(e) => updateTax(income.id, tax.id, { jenis: e.target.value as JenisPotongan })}
+                              onChange={(e) =>
+                                updateTax(income.id, tax.id, {
+                                  jenis: e.target.value as JenisPotongan,
+                                })
+                              }
                               className="flex-[1] h-9 px-2 border border-slate-200 rounded-md text-xs bg-white focus:outline-none focus:border-brand"
                             >
                               <option value="persen">{t.taxPercent}</option>
@@ -293,23 +377,36 @@ export default function IncomeSection({ incomes, onChange, errors, lang, currenc
 
                             <div className="flex-[1.5] relative">
                               {tax.jenis === "nominal" && (
-                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">{curConfig.symbol}</span>
+                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">
+                                  {curConfig.symbol}
+                                </span>
                               )}
                               <input
                                 type="text"
-                                value={tax.jenis === "nominal" ? formatInputNumber(tax.nilai, currency) : tax.nilai || ""}
+                                value={
+                                  tax.jenis === "nominal"
+                                    ? formatInputNumber(tax.nilai, currency)
+                                    : tax.nilai || ""
+                                }
                                 placeholder="0"
                                 onChange={(e) => {
                                   const rawVal = e.target.value;
-                                  const numeric = tax.jenis === "nominal" ? parseInputNumber(rawVal) : Number(rawVal.replace(/[^0-9.]/g, ""));
-                                  updateTax(income.id, tax.id, { nilai: isNaN(numeric) ? 0 : numeric });
+                                  const numeric =
+                                    tax.jenis === "nominal"
+                                      ? parseInputNumber(rawVal)
+                                      : Number(rawVal.replace(/[^0-9.]/g, ""));
+                                  updateTax(income.id, tax.id, {
+                                    nilai: isNaN(numeric) ? 0 : numeric,
+                                  });
                                 }}
                                 className={`w-full h-9 px-2 border border-slate-200 rounded-md text-xs bg-white focus:outline-none focus:border-brand font-medium ${
                                   tax.jenis === "nominal" ? "pl-7" : "pr-6"
                                 }`}
                               />
                               {tax.jenis === "persen" && (
-                                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">%</span>
+                                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">
+                                  %
+                                </span>
                               )}
                             </div>
 
