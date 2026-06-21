@@ -345,75 +345,87 @@ export default function IncomeSection({
                     ) : (
                       <div className="space-y-2">
                         {income.pajak.map((tax) => (
-                          <div key={tax.id} className="flex gap-2 items-center">
-                            <input
-                              type="text"
-                              value={tax.nama}
-                              placeholder={
-                                lang === "id"
-                                  ? "Nama Potongan (misal: PPh 21)"
-                                  : "Deduction Name (e.g. Tax)"
-                              }
-                              onChange={(e) =>
-                                updateTax(income.id, tax.id, {
-                                  nama: e.target.value,
-                                })
-                              }
-                              className="flex-[2] h-9 px-2 border border-slate-200 rounded-md text-xs bg-white focus:outline-none focus:border-brand"
-                            />
-
-                            <select
-                              value={tax.jenis}
-                              onChange={(e) =>
-                                updateTax(income.id, tax.id, {
-                                  jenis: e.target.value as JenisPotongan,
-                                })
-                              }
-                              className="flex-[1] h-9 px-2 border border-slate-200 rounded-md text-xs bg-white focus:outline-none focus:border-brand"
-                            >
-                              <option value="persen">{t.taxPercent}</option>
-                              <option value="nominal">{t.taxNominal}</option>
-                            </select>
-
-                            <div className="flex-[1.5] relative">
-                              {tax.jenis === "nominal" && (
-                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">
-                                  {curConfig.symbol}
-                                </span>
-                              )}
+                          <div key={tax.id} className="flex flex-col sm:flex-row gap-2 sm:items-center pb-3 sm:pb-0 border-b border-slate-200/40 sm:border-0 last:border-0">
+                            <div className="flex gap-2 w-full sm:flex-[2]">
                               <input
                                 type="text"
-                                value={
-                                  tax.jenis === "nominal"
-                                    ? formatInputNumber(tax.nilai, currency)
-                                    : tax.nilai || ""
+                                value={tax.nama}
+                                placeholder={
+                                  lang === "id"
+                                    ? "Nama Potongan (misal: PPh 21)"
+                                    : "Deduction Name (e.g. Tax)"
                                 }
-                                placeholder="0"
-                                onChange={(e) => {
-                                  const rawVal = e.target.value;
-                                  const numeric =
-                                    tax.jenis === "nominal"
-                                      ? parseInputNumber(rawVal)
-                                      : Number(rawVal.replace(/[^0-9.]/g, ""));
+                                onChange={(e) =>
                                   updateTax(income.id, tax.id, {
-                                    nilai: isNaN(numeric) ? 0 : numeric,
-                                  });
-                                }}
-                                className={`w-full h-9 px-2 border border-slate-200 rounded-md text-xs bg-white focus:outline-none focus:border-brand font-medium ${
-                                  tax.jenis === "nominal" ? "pl-7" : "pr-6"
-                                }`}
+                                    nama: e.target.value,
+                                  })
+                                }
+                                className="w-full h-9 px-2 border border-slate-200 rounded-md text-xs bg-white focus:outline-none focus:border-brand"
                               />
-                              {tax.jenis === "persen" && (
-                                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">
-                                  %
-                                </span>
-                              )}
+                              <button
+                                type="button"
+                                onClick={() => removeTax(income.id, tax.id)}
+                                className="p-2 text-slate-400 hover:text-danger rounded hover:bg-slate-100 btn-hover-transition sm:hidden"
+                                aria-label="Hapus potongan"
+                              >
+                                <LuTrash2 size={16} />
+                              </button>
+                            </div>
+
+                            <div className="flex gap-2 w-full sm:flex-[2.5]">
+                              <select
+                                value={tax.jenis}
+                                onChange={(e) =>
+                                  updateTax(income.id, tax.id, {
+                                    jenis: e.target.value as JenisPotongan,
+                                  })
+                                }
+                                className="flex-[1] min-w-0 h-9 px-2 border border-slate-200 rounded-md text-xs bg-white focus:outline-none focus:border-brand"
+                              >
+                                <option value="persen">{t.taxPercent}</option>
+                                <option value="nominal">{t.taxNominal}</option>
+                              </select>
+
+                              <div className="flex-[1.5] min-w-0 relative">
+                                {tax.jenis === "nominal" && (
+                                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">
+                                    {curConfig.symbol}
+                                  </span>
+                                )}
+                                <input
+                                  type="text"
+                                  value={
+                                    tax.jenis === "nominal"
+                                      ? formatInputNumber(tax.nilai, currency)
+                                      : tax.nilai || ""
+                                  }
+                                  placeholder="0"
+                                  onChange={(e) => {
+                                    const rawVal = e.target.value;
+                                    const numeric =
+                                      tax.jenis === "nominal"
+                                        ? parseInputNumber(rawVal)
+                                        : Number(rawVal.replace(/[^0-9.]/g, ""));
+                                    updateTax(income.id, tax.id, {
+                                      nilai: isNaN(numeric) ? 0 : numeric,
+                                    });
+                                  }}
+                                  className={`w-full h-9 px-2 border border-slate-200 rounded-md text-xs bg-white focus:outline-none focus:border-brand font-medium ${
+                                    tax.jenis === "nominal" ? "pl-7" : "pr-6"
+                                  }`}
+                                />
+                                {tax.jenis === "persen" && (
+                                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">
+                                    %
+                                  </span>
+                                )}
+                              </div>
                             </div>
 
                             <button
                               type="button"
                               onClick={() => removeTax(income.id, tax.id)}
-                              className="p-1 text-slate-400 hover:text-danger rounded hover:bg-slate-100 btn-hover-transition"
+                              className="hidden sm:inline-flex p-1 text-slate-400 hover:text-danger rounded hover:bg-slate-100 btn-hover-transition"
                               aria-label="Hapus potongan"
                             >
                               <LuTrash2 size={14} />
