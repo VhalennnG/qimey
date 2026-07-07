@@ -7,6 +7,7 @@ import { Language, translations } from "../utils/translations";
 import FormContainer from "../components/FormContainer";
 import Dashboard from "../components/Dashboard";
 import Image from "next/image";
+import Link from "next/link";
 import { BsGithub } from "react-icons/bs";
 
 const DEFAULT_STATE: FinancialState = {
@@ -521,10 +522,19 @@ export default function MainPage() {
       {/* Footer */}
       <footer className="mt-16 border-t border-slateCustom-100 bg-white/60 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Copyright */}
-          <p className="text-xs text-slateCustom-400 text-center">
-            © {new Date().getFullYear()} Qimey. All rights reserved.
-          </p>
+          {/* Copyright & Privacy Policy */}
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+            <p className="text-xs text-slateCustom-400">
+              © {new Date().getFullYear()} Qimey. All rights reserved.
+            </p>
+            <span className="hidden sm:inline text-slateCustom-200">|</span>
+            <Link
+              href="/privacy"
+              className="text-xs text-slateCustom-400 hover:text-brand transition-colors duration-200 font-medium"
+            >
+              {lang === "id" ? "Kebijakan Privasi" : "Privacy Policy"}
+            </Link>
+          </div>
 
           {/* GitHub Link */}
           <a
